@@ -6,4 +6,4 @@ Console.OutputEncoding = Encoding.UTF8;
 
 Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-Task1.Run();
+Task2.Run();
