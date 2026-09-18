@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Lab02;
+﻿namespace Lab02;
 
 public static class Task1
 {
@@ -31,9 +29,9 @@ public static class Task1
 
         int total = 0;
         double average = sum / n;
-        foreach (double i in patients)
+        for (int i = 0; i < n; ++i)
         {
-            if (i > average)
+            if (patients[i] > average)
             {
                 total += 1;
             }
