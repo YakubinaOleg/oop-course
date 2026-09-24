@@ -2,14 +2,11 @@
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-Patient p1 = new Patient("Іван", "Петренко", new DateTime(1983, 5, 14), "A+", "0501234567", "ivan@gmail.com");
-Patient p2 = new Patient("Олена", "Коваль", new DateTime(1991, 11, 30), "B-", "0672345678", "");
-Patient p3 = new Patient("Максим", "Бойко", new DateTime(2010, 3, 15), "0+", "0933456789", "");
-Patient p4 = new Patient();
-Patient p5 = new Patient("Марія", "Ткач");
-
-Console.WriteLine(p1);
-Console.WriteLine(p2);
-Console.WriteLine(p3);
-Console.WriteLine(p4);
-Console.WriteLine(p5);
+Doctor d1 = new Doctor("Олег", "Сидоренко", "Кардіологія", "LIC-001", "0441234567", 8, 16);
+Doctor d2 = new Doctor("Наталія", "Мороз", "Неврологія", "LIC-002", "0442345678", 9, 18);
+Doctor d3 = new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789", 8, 17);
+Doctor d4 = new Doctor();
+Console.WriteLine(d1);
+Console.WriteLine(d2);
+Console.WriteLine(d3);
+Console.WriteLine(d4);
