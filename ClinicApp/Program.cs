@@ -2,28 +2,25 @@
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-PatientManager patientManager = new PatientManager();
-DoctorManager doctorManager = new DoctorManager();
-AppointmentManager appointmentManager = new AppointmentManager(patientManager, doctorManager);
+// Створюємо єдиний об'єкт клініки
+Clinic clinic = new Clinic("Медична Клініка");
 
-patientManager.Add(new Patient("Олександр", "Коваленко", new DateTime(1990, 5, 14), "A+", "+380971112233", "kovalenko@gmail.com"));
-patientManager.Add(new Patient("Марія", "Шевченко", new DateTime(2003, 11, 28), "O-", "+380504445566", "m.shevchenko@gmail.com"));
-patientManager.Add(new Patient("Іван", "Бондаренко", new DateTime(1978, 3, 2), "B+", "+380637778899", "i.bond@gmail.com"));
+// Додаємо по 3 тестові записи через властивості clinic
+clinic.Patients.Add(new Patient("Олександр", "Коваленко", new DateTime(1990, 5, 14), "A+", "+380971112233", "kovalenko@gmail.com"));
+clinic.Patients.Add(new Patient("Марія", "Шевченко", new DateTime(2003, 11, 28), "O-", "+380504445566", "m.shevchenko@gmail.com"));
+clinic.Patients.Add(new Patient("Іван", "Бондаренко", new DateTime(1978, 3, 2), "B+", "+380637778899", "i.bond@gmail.com"));
 
-doctorManager.Add(new Doctor("Андрій", "Мельник", "Кардіолог", "LIC-1001", "+380671110001", 8, 16));
-doctorManager.Add(new Doctor("Олена", "Ткаченко", "Терапевт", "LIC-1002", "+380671110002", 9, 17));
-doctorManager.Add(new Doctor("Сергій", "Кравченко", "Хірург", "LIC-1003", "+380671110003", 10, 18));
+clinic.Doctors.Add(new Doctor("Андрій", "Мельник", "Кардіолог", "LIC-1001", "+380671110001", 8, 16));
+clinic.Doctors.Add(new Doctor("Олена", "Ткаченко", "Терапевт", "LIC-1002", "+380671110002", 9, 17));
+clinic.Doctors.Add(new Doctor("Сергій", "Кравченко", "Хірург", "LIC-1003", "+380671110003", 10, 18));
 
-appointmentManager.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
-appointmentManager.Book(2, 2, DateTime.Now.AddDays(2).AddHours(4), 45);
-appointmentManager.Book(3, 3, DateTime.Now.AddDays(3).AddHours(1), 60);
+clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
+clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(4), 45);
+clinic.Appointments.Book(3, 3, DateTime.Now.AddDays(3).AddHours(1), 60);
 
-ShowMainMenu(patientManager, doctorManager, appointmentManager);
-
-static void ShowMainMenu(
-    PatientManager patientManager,
-    DoctorManager doctorManager,
-    AppointmentManager appointmentManager)
+// Запуск головного меню
+ShowMainMenu(clinic);
+static void ShowMainMenu(Clinic clinic)
 {
     while (true)
     {
@@ -31,6 +28,8 @@ static void ShowMainMenu(
         Console.WriteLine("1. Управління пацієнтами");
         Console.WriteLine("2. Управління лікарями");
         Console.WriteLine("3. Управління записами");
+        Console.WriteLine("4. Рапорт клініки");
+        Console.WriteLine("5. Всі записи на сьогодні");
         Console.WriteLine("0. Вихід з програми");
         Console.Write("Оберіть розділ: ");
 
@@ -39,15 +38,23 @@ static void ShowMainMenu(
         switch (choice)
         {
             case "1":
-                ShowPatientMenu(patientManager);
+                ShowPatientMenu(clinic);
                 break;
 
             case "2":
-                ShowDoctorMenu(doctorManager);
+                ShowDoctorMenu(clinic);
                 break;
 
             case "3":
-                ShowAppointmentMenu(appointmentManager, patientManager, doctorManager);
+                ShowAppointmentMenu(clinic);
+                break;
+
+            case "4":
+                clinic.GenerateReport();
+                break;
+
+            case "5":
+                clinic.DisplaySchedule(DateTime.Today);
                 break;
 
             case "0":
@@ -61,7 +68,7 @@ static void ShowMainMenu(
     }
 }
 
-static void ShowPatientMenu(PatientManager patientManager)
+static void ShowPatientMenu(Clinic clinic)
 {
     while (true)
     {
@@ -80,7 +87,7 @@ static void ShowPatientMenu(PatientManager patientManager)
         switch (choice)
         {
             case "1":
-                patientManager.DisplayAll();
+                clinic.Patients.DisplayAll();
                 break;
 
             case "2":
@@ -104,13 +111,13 @@ static void ShowPatientMenu(PatientManager patientManager)
 
                 // Усі 6 параметрів строго за конструктором
                 Patient newPatient = new Patient(firstName, lastName, birthDate, bloodType, phone, email);
-                patientManager.Add(newPatient);
+                clinic.Patients.Add(newPatient);
                 break;
 
             case "3":
                 Console.Write("Введіть ID пацієнта: ");
                 int id = int.Parse(Console.ReadLine());
-                Patient p = patientManager.FindById(id);
+                Patient p = clinic.Patients.FindById(id);
                 if (p != null)
                 {
                     Console.WriteLine($"Знайдено: {p}");
@@ -124,7 +131,7 @@ static void ShowPatientMenu(PatientManager patientManager)
             case "4":
                 Console.Write("Введіть ім'я або прізвище для пошуку: ");
                 string name = Console.ReadLine();
-                Patient[] found = patientManager.FindByName(name);
+                Patient[] found = clinic.Patients.FindByName(name);
                 if (found.Length == 0)
                 {
                     Console.WriteLine("Пацієнтів не знайдено.");
@@ -142,7 +149,7 @@ static void ShowPatientMenu(PatientManager patientManager)
             case "5":
                 Console.Write("Введіть ID пацієнта для видалення: ");
                 int removeId = int.Parse(Console.ReadLine());
-                if (patientManager.Remove(removeId))
+                if (clinic.Patients.Remove(removeId))
                 {
                     Console.WriteLine($"Пацієнта з ID {removeId} успішно видалено.");
                 }
@@ -153,7 +160,7 @@ static void ShowPatientMenu(PatientManager patientManager)
                 break;
 
             case "6":
-                patientManager.DisplayStats();
+                clinic.Patients.DisplayStats();
                 break;
 
             case "0":
@@ -166,7 +173,7 @@ static void ShowPatientMenu(PatientManager patientManager)
     }
 }
 
-static void ShowDoctorMenu(DoctorManager doctorManager)
+static void ShowDoctorMenu(Clinic clinic)
 {
     while (true)
     {
@@ -185,7 +192,7 @@ static void ShowDoctorMenu(DoctorManager doctorManager)
         switch (choice)
         {
             case "1":
-                doctorManager.DisplayAll();
+                clinic.Doctors.DisplayAll();
                 break;
 
             case "2":
@@ -214,13 +221,13 @@ static void ShowDoctorMenu(DoctorManager doctorManager)
 
                 // Виклики згідно з конструктором
                 Doctor newDoctor = new Doctor(firstName, lastName, speciality, licenseNumber, phone, startHour, endHour);
-                doctorManager.Add(newDoctor);
+                clinic.Doctors.Add(newDoctor);
                 break;
 
             case "3":
                 Console.Write("Введіть ID лікаря: ");
                 int id = int.Parse(Console.ReadLine());
-                Doctor doc = doctorManager.FindById(id);
+                Doctor doc = clinic.Doctors.FindById(id);
                 if (doc != null)
                 {
                     Console.WriteLine($"Знайдено: {doc}");
@@ -234,7 +241,7 @@ static void ShowDoctorMenu(DoctorManager doctorManager)
             case "4":
                 Console.Write("Введіть спеціальність для пошуку: ");
                 string spec = Console.ReadLine();
-                Doctor[] found = doctorManager.FindBySpeciality(spec);
+                Doctor[] found = clinic.Doctors.FindBySpeciality(spec);
                 if (found.Length == 0)
                 {
                     Console.WriteLine("Лікарів за цією спеціальністю не знайдено.");
@@ -252,7 +259,7 @@ static void ShowDoctorMenu(DoctorManager doctorManager)
             case "5":
                 Console.Write("Введіть ID лікаря для видалення: ");
                 int removeId = int.Parse(Console.ReadLine());
-                if (doctorManager.Remove(removeId))
+                if (clinic.Doctors.Remove(removeId))
                 {
                     Console.WriteLine($"Лікаря з ID {removeId} успішно видалено.");
                 }
@@ -263,7 +270,7 @@ static void ShowDoctorMenu(DoctorManager doctorManager)
                 break;
 
             case "6":
-                doctorManager.DisplayStats();
+                clinic.Doctors.DisplayStats();
                 break;
 
             case "0":
@@ -276,10 +283,7 @@ static void ShowDoctorMenu(DoctorManager doctorManager)
     }
 }
 
-static void ShowAppointmentMenu(
-    AppointmentManager appointmentManager,
-    PatientManager patientManager,
-    DoctorManager doctorManager)
+static void ShowAppointmentMenu(Clinic clinic)
 {
     while (true)
     {
@@ -301,10 +305,10 @@ static void ShowAppointmentMenu(
             case "1":
                 // 1. Показуємо доступні списки пацієнтів та лікарів
                 Console.WriteLine("\n=== Список пацієнтів ===");
-                patientManager.DisplayAll();
+                clinic.Patients.DisplayAll();
 
                 Console.WriteLine("\n=== Список лікарів ===");
-                doctorManager.DisplayAll();
+                clinic.Doctors.DisplayAll();
 
                 // 2. Зчитуємо дані для запису
                 Console.Write("\nВведіть ID пацієнта: ");
@@ -320,7 +324,7 @@ static void ShowAppointmentMenu(
                 string durInput = Console.ReadLine();
                 int duration = string.IsNullOrWhiteSpace(durInput) ? 30 : int.Parse(durInput);
 
-                appointmentManager.Book(pId, dId, dt, duration);
+                clinic.Appointments.Book(pId, dId, dt, duration);
                 break;
 
             case "2":
@@ -330,19 +334,19 @@ static void ShowAppointmentMenu(
                 Console.Write("Введіть причину скасування (опціонально): ");
                 string reason = Console.ReadLine();
 
-                appointmentManager.Cancel(cancelId, reason);
+                clinic.Appointments.Cancel(cancelId, reason);
                 break;
 
             case "3":
                 Console.Write("Введіть ID запису для завершення: ");
                 int completeId = int.Parse(Console.ReadLine());
 
-                appointmentManager.Complete(completeId);
+                clinic.Appointments.Complete(completeId);
                 break;
 
             case "4":
                 Console.WriteLine("\n=== Майбутні записи ===");
-                appointmentManager.DisplayList(appointmentManager.GetUpcoming());
+                clinic.Appointments.DisplayList(clinic.Appointments.GetUpcoming());
                 break;
 
             case "5":
@@ -350,7 +354,7 @@ static void ShowAppointmentMenu(
                 DateTime searchDate = DateTime.Parse(Console.ReadLine());
 
                 Console.WriteLine($"\n=== Записи на {searchDate:dd.MM.yyyy} ===");
-                appointmentManager.DisplayList(appointmentManager.GetByDate(searchDate));
+                clinic.Appointments.DisplayList(clinic.Appointments.GetByDate(searchDate));
                 break;
 
             case "6":
@@ -358,7 +362,7 @@ static void ShowAppointmentMenu(
                 int searchPId = int.Parse(Console.ReadLine());
 
                 Console.WriteLine($"\n=== Записи пацієнта #{searchPId} ===");
-                appointmentManager.DisplayList(appointmentManager.GetByPatient(searchPId));
+                clinic.Appointments.DisplayList(clinic.Appointments.GetByPatient(searchPId));
                 break;
 
             case "7":
@@ -366,7 +370,7 @@ static void ShowAppointmentMenu(
                 int searchDId = int.Parse(Console.ReadLine());
 
                 Console.WriteLine($"\n=== Записи лікаря #{searchDId} ===");
-                appointmentManager.DisplayList(appointmentManager.GetByDoctor(searchDId));
+                clinic.Appointments.DisplayList(clinic.Appointments.GetByDoctor(searchDId));
                 break;
 
             case "0":
