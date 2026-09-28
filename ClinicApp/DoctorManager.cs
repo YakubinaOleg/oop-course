@@ -46,12 +46,12 @@ public class DoctorManager
     }
 
     // 4. ПОШУК ЗА СПЕЦІАЛЬНІСТЮ
-    public Doctor[] FindBySpeciality(string speciality)
+    public Doctor[] FindBySpeciality(Speciality speciality)
     {
         int count = 0;
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.Contains(speciality, StringComparison.OrdinalIgnoreCase))
+            if (_doctors[i].Speciality == speciality)
             {
                 count++;
             }
@@ -62,7 +62,7 @@ public class DoctorManager
         int index = 0;
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.Contains(speciality, StringComparison.OrdinalIgnoreCase))
+            if (_doctors[i].Speciality == speciality)
             {
                 DoctorSpeciality[index++] = _doctors[i];
             }
@@ -128,32 +128,21 @@ public class DoctorManager
         Console.WriteLine($"Доступні зараз:  {availableCount}");
         Console.WriteLine("По спеціальностях:");
 
-        for (int i = 0; i < _count; i++)
+        foreach (Speciality spec in Enum.GetValues(typeof(Speciality)))
         {
-            string currentSpec = _doctors[i].Speciality;
+            int specDoctorCount = 0;
 
-            bool alreadySeen = false;
-            for (int j = 0; j < i; j++)
+            for (int i = 0; i < _count; i++)
             {
-                if (_doctors[j].Speciality.Equals(currentSpec, StringComparison.OrdinalIgnoreCase))
+                if (_doctors[i].Speciality == spec)
                 {
-                    alreadySeen = true;
-                    break;
+                    specDoctorCount++;
                 }
             }
 
-            if (!alreadySeen)
+            if (specDoctorCount > 0)
             {
-                int specDoctorCount = 0;
-                for (int k = 0; k < _count; k++)
-                {
-                    if (_doctors[k].Speciality.Equals(currentSpec, StringComparison.OrdinalIgnoreCase))
-                    {
-                        specDoctorCount++;
-                    }
-                }
-
-                Console.WriteLine($"  {currentSpec}: {specDoctorCount}");
+                Console.WriteLine($"  {spec}: {specDoctorCount}");
             }
         }
     }
