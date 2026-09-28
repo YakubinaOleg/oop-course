@@ -11,7 +11,7 @@ namespace ClinicApp
         public int Id { get; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Speciality { get; set; }
+        public Speciality Speciality { get; set; }
         public string LicenseNumber { get; set; }
         public string Phone { get; set; }
         public int WorkStartHour { get; set; }
@@ -37,19 +37,19 @@ namespace ClinicApp
 
         public bool CanAcceptAt(int hour)
         {
-            return hour >= WorkStartHour && DateTime.Now.Hour < WorkEndHour;
+            return hour >= WorkStartHour && hour < WorkEndHour;
         }
 
         public bool IsAvailableNow
         {
             get
             {
-                
-                return CanAcceptAt(DateTime.Now.Hour);
+
+                return DateTime.Now.Hour >= WorkStartHour && DateTime.Now.Hour < WorkEndHour;
             }
         }
 
-        public Doctor(string firstName, string lastName, string speciality, string licenseNumber, string phone, int workStartHour = 8, int workEndHour = 17)
+        public Doctor(string firstName, string lastName, Speciality speciality, string licenseNumber, string phone, int workStartHour = 8, int workEndHour = 17)
         {
             Id = _nextId++;
             FirstName = firstName;
@@ -61,11 +61,11 @@ namespace ClinicApp
             WorkEndHour = workEndHour;
         }
 
-        public Doctor(string firstName, string lastName, string speciality)
+        public Doctor(string firstName, string lastName, Speciality speciality)
             : this(firstName, lastName, speciality, "LIC-000", "0000000000", 8, 17) { }
 
         public Doctor()
-            : this("Невідомий", "Лікар", "Загальна практика") { }
+            : this("Невідомий", "Лікар", Speciality.General) { }
 
         public override string ToString()
         {
