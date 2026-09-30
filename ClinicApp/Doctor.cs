@@ -14,8 +14,7 @@ namespace ClinicApp
         public Speciality Speciality { get; set; }
         public string LicenseNumber { get; set; }
         public string Phone { get; set; }
-        public int WorkStartHour { get; set; }
-        public int WorkEndHour { get; set; }
+        public WorkSchedule Schedule { get; set; }
 
         public string FullName => $"{FirstName} {LastName}";
 
@@ -23,7 +22,7 @@ namespace ClinicApp
         {
             get
             {
-                return WorkEndHour - WorkStartHour;
+                return Schedule.End - Schedule.Start;
             }
         }
 
@@ -31,13 +30,13 @@ namespace ClinicApp
         {
             get
             {
-                return $"{WorkStartHour:D2}:00-{WorkEndHour:D2}:00";
+                return Schedule.Display;
             }
         }
 
         public bool CanAcceptAt(int hour)
         {
-            return hour >= WorkStartHour && hour < WorkEndHour;
+            return Schedule.Contains(hour);
         }
 
         public bool IsAvailableNow
@@ -45,11 +44,11 @@ namespace ClinicApp
             get
             {
 
-                return DateTime.Now.Hour >= WorkStartHour && DateTime.Now.Hour < WorkEndHour;
+                return Schedule.Contains(DateTime.Now.Hour);
             }
         }
 
-        public Doctor(string firstName, string lastName, Speciality speciality, string licenseNumber, string phone, int workStartHour = 8, int workEndHour = 17)
+        public Doctor(string firstName, string lastName, Speciality speciality, string licenseNumber, string phone, WorkSchedule schedule)
         {
             Id = _nextId++;
             FirstName = firstName;
@@ -57,12 +56,11 @@ namespace ClinicApp
             Speciality = speciality;
             LicenseNumber = licenseNumber;
             Phone = phone;
-            WorkStartHour = workStartHour;
-            WorkEndHour = workEndHour;
+            Schedule = schedule;
         }
 
         public Doctor(string firstName, string lastName, Speciality speciality)
-            : this(firstName, lastName, speciality, "LIC-000", "0000000000", 8, 17) { }
+            : this(firstName, lastName, speciality, "LIC-000", "0000000000", new WorkSchedule(8, 17)) { }
 
         public Doctor()
             : this("Невідомий", "Лікар", Speciality.General) { }

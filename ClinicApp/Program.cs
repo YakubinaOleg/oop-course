@@ -8,9 +8,9 @@ clinic.Patients.Add(new Patient("Олександр", "Коваленко", new 
 clinic.Patients.Add(new Patient("Марія", "Шевченко", new DateTime(2003, 11, 28), BloodType.ONegative, "+380504445566", "m.shevchenko@gmail.com"));
 clinic.Patients.Add(new Patient("Іван", "Бондаренко", new DateTime(1978, 3, 2), BloodType.BPositive, "+380637778899", "i.bond@gmail.com"));
 
-clinic.Doctors.Add(new Doctor("Андрій", "Мельник", Speciality.Cardiology, "LIC-1001", "+380671110001", 8, 16));
-clinic.Doctors.Add(new Doctor("Олена", "Ткаченко", Speciality.General, "LIC-1002", "+380671110002", 9, 17));
-clinic.Doctors.Add(new Doctor("Сергій", "Кравченко", Speciality.Surgery, "LIC-1003", "+380671110003", 10, 18));
+clinic.Doctors.Add(new Doctor("Андрій", "Мельник", Speciality.Cardiology, "LIC-1001", "+380671110001", new WorkSchedule(8, 16)));
+clinic.Doctors.Add(new Doctor("Олена", "Ткаченко", Speciality.General, "LIC-1002", "+380671110002", new WorkSchedule(9, 17)));
+clinic.Doctors.Add(new Doctor("Сергій", "Кравченко", Speciality.Surgery, "LIC-1003", "+380671110003", new WorkSchedule(10, 18)));
 
 clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
 clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(4), 45);
@@ -223,7 +223,7 @@ static void ShowDoctorMenu(Clinic clinic)
                 string endInput = Console.ReadLine()!;
                 int endHour = string.IsNullOrWhiteSpace(endInput) ? 17 : int.Parse(endInput);
 
-                Doctor newDoctor = new Doctor(firstName, lastName, speciality, licenseNumber, phone, startHour, endHour);
+                Doctor newDoctor = new Doctor(firstName, lastName, speciality, licenseNumber, phone, new WorkSchedule(startHour, endHour));
                 clinic.Doctors.Add(newDoctor);
                 break;
 
