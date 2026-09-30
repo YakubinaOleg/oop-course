@@ -15,7 +15,7 @@ namespace ClinicApp
             _count = 0;
         }
 
-        private void Resize()
+        private void Grow()
         {
             int oldSize = _patients.Length;
             int newSize = _patients.Length * 2;
@@ -39,7 +39,7 @@ namespace ClinicApp
             }
             if (_count == _patients.Length)
             {
-                Resize();
+                Grow();
             }
             _patients[_count++] = patient;
         }

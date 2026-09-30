@@ -12,7 +12,7 @@ namespace ClinicApp
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public string BloodType { get; set; }
+        public BloodType BloodType { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
 
@@ -40,7 +40,7 @@ namespace ClinicApp
         }
 
 
-        public Patient(string firstName, string lastName, DateTime dateOfBirth, string bloodType,  string phone, string email)
+        public Patient(string firstName, string lastName, DateTime dateOfBirth, BloodType bloodType,  string phone, string email)
         {
             Id = _nextId++;
             FirstName = firstName;
@@ -51,7 +51,7 @@ namespace ClinicApp
             Email = email;
         }
 
-        public Patient(string firstName, string lastName) : this(firstName, lastName, new DateTime(2000, 3, 15), "Невідомо", "0000000000", "") { }
+        public Patient(string firstName, string lastName) : this(firstName, lastName, new DateTime(2000, 3, 15), BloodType.Unknown, "0000000000", "") { }
         public Patient() : this("Невідомий", "Пацієнт") { }
 
         public string GetAgeCategory()
@@ -72,7 +72,11 @@ namespace ClinicApp
 
         public override string ToString()
         {
-            return $"[{Id}] {FullName} | Вік: {Age} ({GetAgeCategory()}) | Кров: {BloodType} | Тел: {Phone}";
+            string formattedAge = ClinicFormatter.FormatAge(Age);
+            string formattedBlood = ClinicFormatter.FormatBloodType(BloodType);
+            string formattedPhone = ClinicFormatter.FormatPhone(Phone);
+
+            return $"[{Id}] {FullName} | Вік: {formattedAge} | Гр. крові: {formattedBlood} | Тел: {formattedPhone}";
         }
     }
 }

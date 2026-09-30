@@ -170,6 +170,11 @@ public class AppointmentManager
         return result;
     }
 
+    public Appointment[] GetByDate(int year, int month, int day)
+    {
+        return GetByDate(new DateTime(year, month, day));
+    }
+
     // 7. всі майбутні 
     public Appointment[] GetUpcoming()
     {
@@ -227,6 +232,18 @@ public class AppointmentManager
         for (int i = 0; i < list.Length; i++)
         {
             DisplayAppointment(list[i]);
+        }
+    }
+
+    public Appointment this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= _count)
+            {
+                return null;
+            }
+            return _appointments[index];
         }
     }
 }
