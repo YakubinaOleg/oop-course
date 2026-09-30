@@ -69,29 +69,61 @@ public class PatientManager
         return result;
     }
 
-    // За типом крові
-    public Patient[] FindByBloodType(BloodType bloodType)
+    public bool RemoveById(int id)
     {
-        return _patients.Where(p => p.BloodType == bloodType).ToArray();
-    }
-
-    // 4. ВИДАЛЕННЯ ID
-    public bool Remove(int id)
-    {
-        for (int i = 0; i < _count; ++i)
+        int index = -1;
+        for (int i = 0; i < _count; i++)
         {
             if (_patients[i].Id == id)
             {
-                for (int j = i; j < _count - 1; ++j)
-                {
-                    _patients[j] = _patients[j + 1];
-                }
-                _count--;
-                _patients[_count] = null;
-                return true;
+                index = i;
+                break;
             }
         }
-        return false;
+
+        if (index == -1)
+        {
+            Console.WriteLine($"Пацієнта з ID {id} не знайдено.");
+            return false;
+        }
+
+        string removedName = _patients[index].FullName;
+
+        for (int i = index; i < _count - 1; i++)
+        {
+            _patients[i] = _patients[i + 1];
+        }
+
+        _patients[_count - 1] = null;
+        _count--;
+
+        Console.WriteLine($"Пацієнта [{id}] {removedName} успішно видалено.");
+        return true;
+    }
+
+    // ПОШУК ЗА ГРУПОЮ КРОВІ 
+    public Patient[] FindByBloodType(BloodType bloodType)
+    {
+        int matchCount = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_patients[i].BloodType == bloodType)
+            {
+                matchCount++;
+            }
+        }
+
+        Patient[] result = new Patient[matchCount];
+        int resultIndex = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_patients[i].BloodType == bloodType)
+            {
+                result[resultIndex++] = _patients[i];
+            }
+        }
+
+        return result;
     }
 
     // 5. ВИВІД УСІХ
@@ -156,10 +188,7 @@ public class PatientManager
     {
         get
         {
-            if (index < 0 || index >= _count)
-            {
-                return null; 
-            }
+            if (index < 0 || index >= _count) return null;
             return _patients[index];
         }
     }

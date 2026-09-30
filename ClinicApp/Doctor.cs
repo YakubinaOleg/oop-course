@@ -67,10 +67,6 @@ public class Doctor
 
     public override string ToString()
     {
-        string status = IsAvailableNow ? "доступний зараз" : "не в робочий час";
-        string formattedSpec = ClinicFormatter.FormatSpeciality(Speciality);
-        string formattedPhone = ClinicFormatter.FormatPhone(Phone);
-
-        return $"[{Id}] {FullName} | {formattedSpec} | {LicenseNumber} | Тел: {formattedPhone} | {Schedule} | {status}";
+        return $"[{Id}] {FullName} | {ClinicFormatter.FormatSpeciality(Speciality)} | {LicenseNumber} | Тел: {ClinicFormatter.FormatPhone(Phone)} | {Schedule}";
     }
 }

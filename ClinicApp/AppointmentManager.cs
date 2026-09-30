@@ -239,10 +239,7 @@ public class AppointmentManager
     {
         get
         {
-            if (index < 0 || index >= _count)
-            {
-                return null;
-            }
+            if (index < 0 || index >= _count) return null;
             return _appointments[index];
         }
     }

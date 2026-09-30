@@ -208,7 +208,7 @@ static void ShowPatientMenu(Clinic clinic)
             case "5":
                 Console.Write("Введіть ID пацієнта для видалення: ");
                 int removeId = int.Parse(Console.ReadLine()!);
-                if (clinic.Patients.Remove(removeId))
+                if (clinic.Patients.RemoveById(removeId))
                 {
                     Console.WriteLine($"Пацієнта з ID {removeId} успішно видалено.");
                 }

@@ -51,20 +51,57 @@ public class DoctorManager
         return doctors_copy;
     }
 
-    // 4. ПОШУК ЗА СПЕЦІАЛЬНІСТЮ
+    // 4. ПОШУК ЗА СПЕЦІАЛЬНІСТЮ (Enum)
     public Doctor[] FindBySpeciality(Speciality speciality)
     {
-        return _doctors.Take(_count).Where(d => d.Speciality == speciality).ToArray();
+        int matchCount = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality == speciality)
+            {
+                matchCount++;
+            }
+        }
+
+        Doctor[] result = new Doctor[matchCount];
+        int resultIndex = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality == speciality)
+            {
+                result[resultIndex++] = _doctors[i];
+            }
+        }
+
+        return result;
     }
 
-    // 4.1 ПОШУК ЗА СПЕЦІАЛЬНІСТЮ (String)
+    // 4.1 ПОШУК ЗА СПЕЦІАЛЬНІСТЮ (String) 
     public Doctor[] FindBySpeciality(string query)
     {
-        if (string.IsNullOrWhiteSpace(query)) return Array.Empty<Doctor>();
+        if (string.IsNullOrWhiteSpace(query))
+            return Array.Empty<Doctor>();
 
-        return _doctors.Take(_count)
-                       .Where(d => d.Speciality.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
-                       .ToArray();
+        int matchCount = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                matchCount++;
+            }
+        }
+
+        Doctor[] result = new Doctor[matchCount];
+        int resultIndex = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                result[resultIndex++] = _doctors[i];
+            }
+        }
+
+        return result;
     }
 
     // 5. ВИДАЛЕННЯ ЗА ID
@@ -148,10 +185,7 @@ public class DoctorManager
     {
         get
         {
-            if (index < 0 || index >= _count)
-            {
-                return null;
-            }
+            if (index < 0 || index >= _count) return null;
             return _doctors[index];
         }
     }
