@@ -52,7 +52,9 @@ namespace ClinicApp
         }
 
         public Patient(string firstName, string lastName) : this(firstName, lastName, new DateTime(2000, 3, 15), BloodType.Unknown, "0000000000", "") { }
-        public Patient() : this("Невідомий", "Пацієнт") { }
+        public Patient() : this("Невідомий", "Пацієнт") {
+            BloodType = BloodType.Unknown;
+        }
 
         public string GetAgeCategory()
         {

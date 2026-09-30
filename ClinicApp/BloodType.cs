@@ -1,15 +1,14 @@
-﻿namespace ClinicApp
+﻿namespace ClinicApp;
+
+public enum BloodType
 {
-    public enum BloodType
-    {
-        Unknown, 
-        APositive,
-        ANegative,
-        BPositive,
-        BNegative,
-        ABPositive,
-        ABNegative,
-        OPositive,
-        ONegative
-    }
+    Unknown,
+    APositive,
+    ANegative,
+    BPositive,
+    BNegative,
+    ABPositive,
+    ABNegative,
+    OPositive,
+    ONegative
 }

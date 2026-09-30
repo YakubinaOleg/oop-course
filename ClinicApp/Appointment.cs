@@ -26,28 +26,18 @@ public class Appointment
         Notes = "";
     }
 
-    public bool Cancel(string reason = "")
+    public bool Cancel()
     {
-        if (Status == AppointmentStatus.Scheduled)
-        {
-            Status = AppointmentStatus.Cancelled;
-            if (!string.IsNullOrEmpty(reason))
-            {
-                Notes = reason;
-            }
-            return true;
-        }
-        return false;
+        if (Status != AppointmentStatus.Scheduled) return false;
+        Status = AppointmentStatus.Cancelled;
+        return true;
     }
 
     public bool Complete()
     {
-        if (Status == AppointmentStatus.Scheduled)
-        {
-            Status = AppointmentStatus.Completed;
-            return true;
-        }
-        return false;
+        if (Status != AppointmentStatus.Scheduled) return false;
+        Status = AppointmentStatus.Completed;
+        return true;
     }
 
     public override string ToString()

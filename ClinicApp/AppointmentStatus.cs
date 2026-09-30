@@ -1,9 +1,8 @@
-﻿namespace ClinicApp
+﻿namespace ClinicApp;
+
+public enum AppointmentStatus
 {
-    public enum AppointmentStatus
-    {
-        Scheduled,
-        Cancelled,
-        Completed
-    }
+    Scheduled,
+    Cancelled,
+    Completed
 }
