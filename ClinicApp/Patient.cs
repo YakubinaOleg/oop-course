@@ -72,7 +72,11 @@ namespace ClinicApp
 
         public override string ToString()
         {
-            return $"[{Id}] {FullName} | Вік: {Age} ({GetAgeCategory()}) | Кров: {BloodType} | Тел: {Phone}";
+            string formattedAge = ClinicFormatter.FormatAge(Age);
+            string formattedBlood = ClinicFormatter.FormatBloodType(BloodType);
+            string formattedPhone = ClinicFormatter.FormatPhone(Phone);
+
+            return $"[{Id}] {FullName} | Вік: {formattedAge} | Гр. крові: {formattedBlood} | Тел: {formattedPhone}";
         }
     }
 }

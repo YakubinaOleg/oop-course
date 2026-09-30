@@ -229,4 +229,16 @@ public class AppointmentManager
             DisplayAppointment(list[i]);
         }
     }
+
+    public Appointment this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= _count)
+            {
+                return null;
+            }
+            return _appointments[index];
+        }
+    }
 }

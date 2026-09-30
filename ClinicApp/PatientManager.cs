@@ -139,4 +139,16 @@ public class PatientManager
         Console.WriteLine($"Найстарший: {_patients[biggestOneIdx].FullName} ({_patients[biggestOneIdx].Age} р.)");
         Console.WriteLine($"Дорослих: {howManyAdults} з {_count}");
     }
+
+    public Patient this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= _count)
+            {
+                return null; 
+            }
+            return _patients[index];
+        }
+    }
 }
