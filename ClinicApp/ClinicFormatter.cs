@@ -58,16 +58,13 @@ namespace ClinicApp
         {
             if (string.IsNullOrWhiteSpace(phone)) return phone;
 
-            // Залишаємо лише цифри
             string digits = new string(phone.Where(char.IsDigit).ToArray());
 
-            // Якщо номер починається з 380 і має 12 цифр, беремо останні 10
             if (digits.Length == 12 && digits.StartsWith("380"))
             {
                 digits = digits.Substring(2);
             }
 
-            // Форматуємо 10-значний номер: 0971112233 -> (097) 111-2233
             if (digits.Length == 10)
             {
                 return $"({digits.Substring(0, 3)}) {digits.Substring(3, 3)}-{digits.Substring(6)}";
