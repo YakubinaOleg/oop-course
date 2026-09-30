@@ -2,83 +2,84 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClinicApp
+namespace ClinicApp;
+
+public class Patient
 {
-    public class Patient
+    private static int _nextId = 1;
+
+    public int Id { get; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public DateTime DateOfBirth { get; set; }
+    public BloodType BloodType { get; set; }
+    public string Phone { get; set; }
+    public string Email { get; set; }
+
+    public int Age
     {
-        private static int _nextId = 1;
-
-        public int Id { get; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public BloodType BloodType { get; set; }
-        public string Phone { get; set; }
-        public string Email { get; set; }
-
-        public int Age
-        { get
-            {
-                var today = DateTime.Today;
-                int age = today.Year - DateOfBirth.Year;
-                if (DateOfBirth.Date > today.AddYears(-age)) age--;
-                return age;
-            } 
-        }
-
-        public string FullName
+        get
         {
-            get { return $"{FirstName} {LastName}"; }
+            var today = DateTime.Today;
+            int age = today.Year - DateOfBirth.Year;
+            if (DateOfBirth.Date > today.AddYears(-age)) age--;
+            return age;
         }
+    }
 
-        public bool IsAdult
+    public string FullName
+    {
+        get { return $"{FirstName} {LastName}"; }
+    }
+
+    public bool IsAdult
+    {
+        get
         {
-            get
-            {
-                return Age >= 18;
-            }
+            return Age >= 18;
         }
+    }
 
 
-        public Patient(string firstName, string lastName, DateTime dateOfBirth, BloodType bloodType,  string phone, string email)
+    public Patient(string firstName, string lastName, DateTime dateOfBirth, BloodType bloodType, string phone, string email)
+    {
+        Id = _nextId++;
+        FirstName = firstName;
+        LastName = lastName;
+        DateOfBirth = dateOfBirth;
+        BloodType = bloodType;
+        Phone = phone;
+        Email = email;
+    }
+
+    public Patient(string firstName, string lastName) : this(firstName, lastName, new DateTime(2000, 3, 15), BloodType.Unknown, "0000000000", "") { }
+    public Patient() : this("Невідомий", "Пацієнт")
+    {
+        BloodType = BloodType.Unknown;
+    }
+
+    public string GetAgeCategory()
+    {
+        if (Age < 18)
         {
-            Id = _nextId++;
-            FirstName = firstName;
-            LastName = lastName;
-            DateOfBirth = dateOfBirth;
-            BloodType = bloodType;
-            Phone = phone;
-            Email = email;
+            return "дитина";
         }
-
-        public Patient(string firstName, string lastName) : this(firstName, lastName, new DateTime(2000, 3, 15), BloodType.Unknown, "0000000000", "") { }
-        public Patient() : this("Невідомий", "Пацієнт") {
-            BloodType = BloodType.Unknown;
-        }
-
-        public string GetAgeCategory()
+        else if (Age >= 18 && Age < 60)
         {
-            if (Age < 18)
-            {
-                return "дитина";
-            }
-            else if (Age >= 18 && Age < 60)
-            {
-                return "дорослий";
-            }
-            else
-            {
-                return "літній";
-            }
+            return "дорослий";
         }
-
-        public override string ToString()
+        else
         {
-            string formattedAge = ClinicFormatter.FormatAge(Age);
-            string formattedBlood = ClinicFormatter.FormatBloodType(BloodType);
-            string formattedPhone = ClinicFormatter.FormatPhone(Phone);
-
-            return $"[{Id}] {FullName} | Вік: {formattedAge} | Гр. крові: {formattedBlood} | Тел: {formattedPhone}";
+            return "літній";
         }
+    }
+
+    public override string ToString()
+    {
+        string formattedAge = ClinicFormatter.FormatAge(Age);
+        string formattedBlood = ClinicFormatter.FormatBloodType(BloodType);
+        string formattedPhone = ClinicFormatter.FormatPhone(Phone);
+
+        return $"[{Id}] {FullName} | Вік: {formattedAge} | Гр. крові: {formattedBlood} | Тел: {formattedPhone}";
     }
 }

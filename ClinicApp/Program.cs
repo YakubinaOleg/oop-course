@@ -18,6 +18,14 @@ clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
 clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(4), 45);
 clinic.Appointments.Book(3, 3, DateTime.Now.AddDays(3).AddHours(1), 60);
 
+WorkSchedule morning = new WorkSchedule(8, 14);
+WorkSchedule copy = morning; 
+
+copy = new WorkSchedule(9, 15);
+
+Console.WriteLine($"Original morning: {morning.Display}"); 
+Console.WriteLine($"Modified copy:    {copy.Display}");   
+
 Console.WriteLine("=== 1. ПЕРЕВІРКА СТАТИЧНОГО КЛАСУ ClinicFormatter ==="); 
 Console.WriteLine($"Група крові: {ClinicFormatter.FormatBloodType(BloodType.APositive)}"); 
 Console.WriteLine($"Спеціальність: {ClinicFormatter.FormatSpeciality(Speciality.Cardiology)}"); 

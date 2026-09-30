@@ -26,16 +26,25 @@ public class Appointment
         Notes = "";
     }
 
-    public bool Cancel()
+    public Appointment()
     {
-        if (Status != AppointmentStatus.Scheduled) return false;
+        Status = AppointmentStatus.Scheduled;
+    }
+
+    public bool Cancel(string reason = "")
+    {
+        if (Status != AppointmentStatus.Scheduled)
+            return false;
+
         Status = AppointmentStatus.Cancelled;
         return true;
     }
 
     public bool Complete()
     {
-        if (Status != AppointmentStatus.Scheduled) return false;
+        if (Status != AppointmentStatus.Scheduled)
+            return false;
+
         Status = AppointmentStatus.Completed;
         return true;
     }

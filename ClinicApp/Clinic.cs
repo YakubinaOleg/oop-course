@@ -1,64 +1,62 @@
 ﻿using System;
 
-namespace ClinicApp
-{
+namespace ClinicApp;
     public class Clinic
+{
+    public string Name { get; }
+    public PatientManager Patients { get; }
+    public DoctorManager Doctors { get; }
+    public AppointmentManager Appointments { get; }
+
+    public Clinic(string name)
     {
-        public string Name { get; }
-        public PatientManager Patients { get; }
-        public DoctorManager Doctors { get; }
-        public AppointmentManager Appointments { get; }
+        Name = name;
+        Patients = new PatientManager();
+        Doctors = new DoctorManager();
+        Appointments = new AppointmentManager(Patients, Doctors);
+    }
 
-        public Clinic(string name)
+    public void DisplaySchedule(DateTime date)
+    {
+        Console.WriteLine($"\n=== Розклад на {date:dd.MM.yyyy} ===");
+        Appointment[] dailyApps = Appointments.GetByDate(date);
+        Appointments.DisplayList(dailyApps);
+    }
+
+    // рапорт
+
+    public void GenerateReport()
+    {
+        Appointment[] upcomingApps = Appointments.GetUpcoming();
+        Doctor[] allDoctors = Doctors.GetAll();
+
+        Console.WriteLine("\n╔═════════════════════════════════════════╗");
+        Console.WriteLine($"║ Звіт — {Name,-32} ║");
+        Console.WriteLine("╠═════════════════════════════════════════╣");
+        Console.WriteLine($"║ Пацієнтів:        {Patients.Count,-21} ║");
+        Console.WriteLine($"║ Лікарів:          {Doctors.Count,-21} ║");
+        Console.WriteLine($"║ Майбутніх записів: {upcomingApps.Length,-20} ║");
+        Console.WriteLine("╠═════════════════════════════════════════╣");
+        Console.WriteLine("║ Навантаження лікарів (майбутні записи): ║");
+
+        // навантаження 
+        for (int i = 0; i < allDoctors.Length; i++)
         {
-            Name = name;
-            Patients = new PatientManager();
-            Doctors = new DoctorManager();
-            Appointments = new AppointmentManager(Patients, Doctors);
-        }
+            Doctor doc = allDoctors[i];
+            int count = 0;
 
-        public void DisplaySchedule(DateTime date)
-        {
-            Console.WriteLine($"\n=== Розклад на {date:dd.MM.yyyy} ===");
-            Appointment[] dailyApps = Appointments.GetByDate(date);
-            Appointments.DisplayList(dailyApps);
-        }
-
-        // рапорт
-
-        public void GenerateReport()
-        {
-            Appointment[] upcomingApps = Appointments.GetUpcoming();
-            Doctor[] allDoctors = Doctors.GetAll();
-
-            Console.WriteLine("\n╔═════════════════════════════════════════╗");
-            Console.WriteLine($"║ Звіт — {Name,-32} ║");
-            Console.WriteLine("╠═════════════════════════════════════════╣");
-            Console.WriteLine($"║ Пацієнтів:        {Patients.Count,-21} ║");
-            Console.WriteLine($"║ Лікарів:          {Doctors.Count,-21} ║");
-            Console.WriteLine($"║ Майбутніх записів: {upcomingApps.Length,-20} ║");
-            Console.WriteLine("╠═════════════════════════════════════════╣");
-            Console.WriteLine("║ Навантаження лікарів (майбутні записи): ║");
-
-            // навантаження 
-            for (int i = 0; i < allDoctors.Length; i++)
+            for (int j = 0; j < upcomingApps.Length; j++)
             {
-                Doctor doc = allDoctors[i];
-                int count = 0;
-
-                for (int j = 0; j < upcomingApps.Length; j++)
+                if (upcomingApps[j].DoctorId == doc.Id)
                 {
-                    if (upcomingApps[j].DoctorId == doc.Id)
-                    {
-                        count++;
-                    }
+                    count++;
                 }
-
-                string docLine = $"  {doc.FullName} ({doc.Speciality}): {count} записів";
-                Console.WriteLine($"║ {docLine,-39} ║");
             }
 
-            Console.WriteLine("╚═════════════════════════════════════════╝");
+            string docLine = $"  {doc.FullName} ({doc.Speciality}): {count} записів";
+            Console.WriteLine($"║ {docLine,-39} ║");
         }
+
+        Console.WriteLine("╚═════════════════════════════════════════╝");
     }
 }
