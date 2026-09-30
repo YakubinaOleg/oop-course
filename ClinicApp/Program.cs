@@ -4,6 +4,8 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 Clinic clinic = new Clinic("Медична Клініка");
 
+
+
 clinic.Patients.Add(new Patient("Олександр", "Коваленко", new DateTime(1990, 5, 14), BloodType.APositive, "+380971112233", "kovalenko@gmail.com"));
 clinic.Patients.Add(new Patient("Марія", "Шевченко", new DateTime(2003, 11, 28), BloodType.ONegative, "+380504445566", "m.shevchenko@gmail.com"));
 clinic.Patients.Add(new Patient("Іван", "Бондаренко", new DateTime(1978, 3, 2), BloodType.BPositive, "+380637778899", "i.bond@gmail.com"));
@@ -16,7 +18,56 @@ clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
 clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(4), 45);
 clinic.Appointments.Book(3, 3, DateTime.Now.AddDays(3).AddHours(1), 60);
 
+Console.WriteLine("=== 1. ПЕРЕВІРКА СТАТИЧНОГО КЛАСУ ClinicFormatter ==="); 
+Console.WriteLine($"Група крові: {ClinicFormatter.FormatBloodType(BloodType.APositive)}"); 
+Console.WriteLine($"Спеціальність: {ClinicFormatter.FormatSpeciality(Speciality.Cardiology)}"); 
+Console.WriteLine($"Форматування віку (1, 3, 11 років): " +
+                  $"{ClinicFormatter.FormatAge(1)}, " +
+                  $"{ClinicFormatter.FormatAge(3)}, " +
+                  $"{ClinicFormatter.FormatAge(11)}"); 
+Console.WriteLine($"Форматування телефону: {ClinicFormatter.FormatPhone("380971112233")}"); 
+
+Console.WriteLine("\n=== 2. ПЕРЕВІРКА ІНДЕКСАТОРІВ [index] ==="); 
+Patient patientFromIndex = clinic.Patients[0];
+Doctor doctorFromIndex = clinic.Doctors[0];
+
+Console.WriteLine($"Пацієнт за індексом [0]: {patientFromIndex}"); 
+Console.WriteLine($"Лікар за індексом [0]: {doctorFromIndex}");    
+
+Console.WriteLine("\nНатисніть Enter, щоб перейти до головного меню...");
+Console.ReadLine();
+Console.Clear();
+
+
+Console.WriteLine("=== 1. ПЕРЕВАНТАЖЕННЯ МЕТОДІВ ==="); 
+Doctor[] cardiologists = clinic.Doctors.FindBySpeciality(Speciality.Cardiology); 
+Doctor[] foundByString = clinic.Doctors.FindBySpeciality("cardio"); 
+Console.WriteLine($"Знайдено кардіологів (Enum): {cardiologists.Length}");
+Console.WriteLine($"Знайдено за рядком 'cardio': {foundByString.Length}");
+
+Appointment[] todayAppts = clinic.Appointments.GetByDate(2026, 10, 1); 
+Console.WriteLine($"Записів на 01.10.2026: {todayAppts.Length}");
+
+Console.WriteLine("\n=== 2. ПАТЕРН TryFindById (out) ==="); 
+if (clinic.Patients.TryFindById(1, out Patient patient)) 
+{
+    Console.WriteLine($"Знайдено: {patient.FirstName} {patient.LastName}"); 
+}
+else
+{
+    Console.WriteLine("Пацієнта не знайдено."); 
+}
+
+Console.WriteLine("\n=== 3. ОПЕРАТОРИ ?. ТА ?? ===");
+string existingName = clinic.Patients.FindById(1)?.FirstName ?? "Не знайдено"; 
+string missingName = clinic.Patients.FindById(99)?.FirstName ?? "Не знайдено"; 
+
+Console.WriteLine($"Пацієнт ID=1: {existingName}");
+Console.WriteLine($"Пацієнт ID=99: {missingName}"); 
+
 ShowMainMenu(clinic);
+
+
 static void ShowMainMenu(Clinic clinic)
 {
     while (true)
@@ -391,3 +442,4 @@ static void ShowAppointmentMenu(Clinic clinic)
         }
     }
 }
+

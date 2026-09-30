@@ -35,6 +35,12 @@ public class PatientManager
         return null;
     }
 
+    public bool TryFindById(int id, out Patient patient)
+    {
+        patient = FindById(id);
+        return patient != null;
+    }
+
     // 3. ІМ'Я АБО ПРІЗВИЩЕ 
     public Patient[] FindByName(string name)
     {
@@ -61,6 +67,12 @@ public class PatientManager
         }
 
         return result;
+    }
+
+    // За типом крові
+    public Patient[] FindByBloodType(BloodType bloodType)
+    {
+        return _patients.Where(p => p.BloodType == bloodType).ToArray();
     }
 
     // 4. ВИДАЛЕННЯ ID

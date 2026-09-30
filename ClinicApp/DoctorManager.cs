@@ -33,6 +33,12 @@ public class DoctorManager
         return null;
     }
 
+    public bool TryFindById(int id, out Doctor doctor)
+    {
+        doctor = FindById(id);
+        return doctor != null;
+    }
+
     // 3. GetAll
     public Doctor[] GetAll()
     {
@@ -48,26 +54,17 @@ public class DoctorManager
     // 4. ПОШУК ЗА СПЕЦІАЛЬНІСТЮ
     public Doctor[] FindBySpeciality(Speciality speciality)
     {
-        int count = 0;
-        for (int i = 0; i < _count; i++)
-        {
-            if (_doctors[i].Speciality == speciality)
-            {
-                count++;
-            }
-        }
+        return _doctors.Take(_count).Where(d => d.Speciality == speciality).ToArray();
+    }
 
-        Doctor[] DoctorSpeciality = new Doctor[count];
+    // 4.1 ПОШУК ЗА СПЕЦІАЛЬНІСТЮ (String)
+    public Doctor[] FindBySpeciality(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return Array.Empty<Doctor>();
 
-        int index = 0;
-        for (int i = 0; i < _count; i++)
-        {
-            if (_doctors[i].Speciality == speciality)
-            {
-                DoctorSpeciality[index++] = _doctors[i];
-            }
-        }
-        return DoctorSpeciality;
+        return _doctors.Take(_count)
+                       .Where(d => d.Speciality.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+                       .ToArray();
     }
 
     // 5. ВИДАЛЕННЯ ЗА ID
