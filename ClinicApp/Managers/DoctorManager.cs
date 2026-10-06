@@ -1,4 +1,9 @@
-﻿namespace ClinicApp;
+﻿using ClinicApp.Models;
+using ClinicApp.Enums;
+using ClinicApp.Utils;
+
+
+namespace ClinicApp.Managers;
 
 public class DoctorManager
 {
@@ -123,7 +128,7 @@ public class DoctorManager
         return false;
     }
 
-    // 6. ВИВІД УСІХ
+    // 6. ВИВІД 
     public void DisplayAll()
     {
         if (_count == 0)
@@ -162,8 +167,11 @@ public class DoctorManager
         Console.WriteLine($"Доступні зараз:  {availableCount}");
         Console.WriteLine("По спеціальностях:");
 
-        foreach (Speciality spec in Enum.GetValues(typeof(Speciality)))
+        Speciality[] allSpecs = (Speciality[])Enum.GetValues(typeof(Speciality));
+
+        for (int s = 0; s < allSpecs.Length; s++)
         {
+            Speciality spec = allSpecs[s];
             int specDoctorCount = 0;
 
             for (int i = 0; i < _count; i++)
@@ -176,7 +184,7 @@ public class DoctorManager
 
             if (specDoctorCount > 0)
             {
-                Console.WriteLine($"  {spec}: {specDoctorCount}");
+                Console.WriteLine($"  {ClinicFormatter.FormatSpeciality(spec)}: {specDoctorCount}");
             }
         }
     }

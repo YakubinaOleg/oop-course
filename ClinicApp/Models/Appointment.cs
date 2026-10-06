@@ -1,4 +1,7 @@
-﻿namespace ClinicApp;
+﻿using ClinicApp.Enums;
+using ClinicApp.Utils;
+
+namespace ClinicApp.Models;
 
 public class Appointment
 {
@@ -26,10 +29,7 @@ public class Appointment
         Notes = "";
     }
 
-    public Appointment()
-    {
-        Status = AppointmentStatus.Scheduled;
-    }
+    public Appointment() : this(0,0, DateTime.Now) { }
 
     public bool Cancel(string reason = "")
     {
@@ -37,6 +37,10 @@ public class Appointment
             return false;
 
         Status = AppointmentStatus.Cancelled;
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            Notes = $"Причина скасування: {reason}";
+        }
         return true;
     }
 

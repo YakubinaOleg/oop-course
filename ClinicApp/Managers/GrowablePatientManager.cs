@@ -1,6 +1,7 @@
-﻿using System;
+﻿using ClinicApp.Models;
+using ClinicApp.Enums;
 
-namespace ClinicApp;
+namespace ClinicApp.Managers;
 
 public class GrowablePatientManager
 {
@@ -44,7 +45,7 @@ public class GrowablePatientManager
         _patients[_count++] = patient;
     }
 
-    public Patient FindById(int id)
+    public Patient? FindById(int id)
     {
         for (int i = 0; i < _count; i++)
         {

@@ -1,4 +1,8 @@
-﻿using ClinicApp;
+﻿using ClinicApp.Models;
+using ClinicApp.Enums;
+using ClinicApp.Managers;
+using ClinicApp.Utils;
+using ClinicApp;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -22,7 +26,6 @@ WorkSchedule morning = new WorkSchedule(8, 14);
 WorkSchedule copy = morning; 
 
 copy = new WorkSchedule(9, 15);
-
 Console.WriteLine($"Original morning: {morning.Display}"); 
 Console.WriteLine($"Modified copy:    {copy.Display}");   
 
@@ -33,7 +36,7 @@ Console.WriteLine($"Форматування віку (1, 3, 11 років): " +
                   $"{ClinicFormatter.FormatAge(1)}, " +
                   $"{ClinicFormatter.FormatAge(3)}, " +
                   $"{ClinicFormatter.FormatAge(11)}"); 
-Console.WriteLine($"Форматування телефону: {ClinicFormatter.FormatPhone("380971112233")}"); 
+Console.WriteLine($"Форматування телефону: {ClinicFormatter.FormatPhone(clinic.Patients[1].Phone)}"); 
 
 Console.WriteLine("\n=== 2. ПЕРЕВІРКА ІНДЕКСАТОРІВ [index] ==="); 
 Patient patientFromIndex = clinic.Patients[0];
@@ -89,7 +92,7 @@ static void ShowMainMenu(Clinic clinic)
         Console.WriteLine("0. Вихід з програми");
         Console.Write("Оберіть розділ: ");
 
-        string choice = Console.ReadLine()!;
+        string choice = Console.ReadLine()!;  
 
         switch (choice)
         {
@@ -176,7 +179,7 @@ static void ShowPatientMenu(Clinic clinic)
             case "3":
                 Console.Write("Введіть ID пацієнта: ");
                 int id = int.Parse(Console.ReadLine()!);
-                Patient p = clinic.Patients.FindById(id)!;
+                Patient? p = clinic.Patients.FindById(id);
                 if (p != null)
                 {
                     Console.WriteLine($"Знайдено: {p}");
@@ -289,7 +292,7 @@ static void ShowDoctorMenu(Clinic clinic)
             case "3":
                 Console.Write("Введіть ID лікаря: ");
                 int id = int.Parse(Console.ReadLine()!);
-                Doctor doc = clinic.Doctors.FindById(id)!;
+                Doctor? doc = clinic.Doctors.FindById(id);
                 if (doc != null)
                 {
                     Console.WriteLine($"Знайдено: {doc}");
