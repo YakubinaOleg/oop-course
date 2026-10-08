@@ -11,20 +11,55 @@ public class Patient
 
     public int Id { get; }
     private string _firstName = "";
-    public string FirstName { get => _firstName; set => _firstName = value; }
+    public string FirstName { get => _firstName;
+        set 
+        {
+            if (string.IsNullOrWhiteSpace(value) || value.Length > 50)
+            {
+                throw new ArgumentException("Некоректне ім'я/прізвище, максимум 50 символів.", nameof(FirstName));
+            }
+            _firstName = value; 
+        }
+    }
     private string _lastName = "";
-    public string LastName { get => _lastName; set => _lastName = value; }
+    public string LastName { get => _lastName;
+    set 
+        {
+            if (string.IsNullOrWhiteSpace(value) || value.Length > 50)
+            {
+                throw new ArgumentException("Некоректне ім'я/прізвище, максимум 50 символів.", nameof(LastName));
+            }
+            _lastName = value; 
+        }
+    }
     private DateTime _dateOfBirth;
     public DateTime DateOfBirth
     {
         get => _dateOfBirth;
-        set => _dateOfBirth = value;
+        set
+        {
+            if (value > DateTime.Today) { throw new ArgumentOutOfRangeException(nameof(DateOfBirth), "Дата народження не може бути в майбутньому."); }
+            if (value.Year < 1900) { throw new ArgumentOutOfRangeException(nameof(DateOfBirth), "Дата народження не може бути раніше 1900 року."); }
+            _dateOfBirth = value; 
+        }
     }
     public BloodType BloodType { get; set; }
     private string _phone = "";
     public string Phone
     {
-        get => _phone; set => _phone = value;
+        get => _phone;
+        set 
+        {
+            if (value == null || value.Length != 10) { throw new ArgumentException("Некоректний номер телефону, повинно бути 10 цифр.", nameof(Phone)); }
+            foreach (var item in value) 
+            {
+                if (!char.IsDigit(item))
+                {
+                    throw new ArgumentException("Некоректний номер телефону, повинні бути лише цифри.", nameof(Phone));
+                }
+            }
+            _phone = value; 
+        }
     }
     public string Email { get; set; }
 

@@ -16,6 +16,19 @@ public struct WorkSchedule
 
     public WorkSchedule(int start, int end)
     {
+        if (start < 0 || start > 23)
+        {
+            throw new ArgumentOutOfRangeException(nameof(start), "Час початку роботи повинен бути між 0 і 23.");
+        }
+        if (end < 1 || end > 24)
+        {
+            throw new ArgumentOutOfRangeException(nameof(end), "Час кінця роботи повинен бути між 1 і 24.");
+        }
+        if (start >= end)
+        {
+            throw new ArgumentException("Час кінця роботи повинен бути пізніше часу початку.", nameof(end));
+        }
+
         Start = start;
         End = end;
     }

@@ -12,24 +12,59 @@ public class Doctor
 
     public string FirstName
     {
-        get => _firstName; set => _firstName = value;
+        get => _firstName;
+        set
+        {
+            if(string.IsNullOrWhiteSpace(value) || value.Length > 50)
+            {
+                throw new ArgumentException("Некоректне ім'я/прізвище, максимум 50 символів.", nameof(FirstName));
+            }
+            _firstName = value;
+        }
     }
     private string _lastName = "";
     public string LastName
     {
-        get => _lastName; set => _lastName = value;
+        get => _lastName;
+        set
+        {
+            if(string.IsNullOrWhiteSpace(value) || value.Length > 50)
+            {
+                throw new ArgumentException("Некоректне ім'я/прізвище, максимум 50 символів.", nameof(LastName));
+            }
+            _lastName = value;
+        }
     }
     public Speciality Speciality { get; set; }
     
     private string _licenseNumber = "";
     public string LicenseNumber
     {
-        get => _licenseNumber; set => _licenseNumber = value;
+        get => _licenseNumber; set
+        {
+            if(string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("Некоректний номер ліцензії.", nameof(LicenseNumber));
+            }
+            _licenseNumber = value;
+        }
     }
     private string _phone = "";
     public string Phone
     {
-        get => _phone; set => _phone = value;
+        get => _phone;
+        set
+        {
+            if (value == null || value.Length != 10) { throw new ArgumentException("Некоректний номер телефону, повинно бути 10 цифр.", nameof(Phone)); }
+            foreach (var item in value)
+            {
+                if (!char.IsDigit(item))
+                {
+                    throw new ArgumentException("Некоректний номер телефону, повинні бути лише цифри.", nameof(Phone));
+                }
+            }
+            _phone = value;
+        }
     }
     public WorkSchedule Schedule { get; set; }
 
