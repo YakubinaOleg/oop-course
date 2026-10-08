@@ -47,7 +47,17 @@ public class Patient
             _phone = value; 
         }
     }
-    public string Email { get; set; }
+    private string _email;
+
+    public string Email
+    {
+        get => _email;
+        set
+        {
+            ClinicValidator.ValidateEmail(value);
+            _email = value;
+        }
+    }
 
     public int Age
     {
