@@ -1,20 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ClinicApp.Enums;
+using ClinicApp.Utils;
+using System.IO.Pipes;
+using System.Reflection.Metadata;
 
-namespace ClinicApp;
+namespace ClinicApp.Models;
 
 public class Patient
 {
     private static int _nextId = 1;
 
     public int Id { get; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public DateTime DateOfBirth { get; set; }
+    private string _firstName = "";
+    public string FirstName { get => _firstName;
+        set 
+        {
+            ClinicValidator.ValidateName(value, nameof(FirstName));
+            _firstName = value; 
+        }
+    }
+    private string _lastName = "";
+    public string LastName { get => _lastName;
+    set 
+        {
+            ClinicValidator.ValidateName(value, nameof(LastName));
+            _lastName = value; 
+        }
+    }
+    private DateTime _dateOfBirth;
+    public DateTime DateOfBirth
+    {
+        get => _dateOfBirth;
+        set
+        {
+            ClinicValidator.ValidateDate(value, nameof(DateOfBirth));
+            _dateOfBirth = value; 
+        }
+    }
     public BloodType BloodType { get; set; }
-    public string Phone { get; set; }
-    public string Email { get; set; }
+    private string _phone = "";
+    public string Phone
+    {
+        get => _phone;
+        set 
+        {
+            ClinicValidator.ValidatePhone(value);
+            _phone = value; 
+        }
+    }
+    private string _email;
+
+    public string Email
+    {
+        get => _email;
+        set
+        {
+            ClinicValidator.ValidateEmail(value);
+            _email = value;
+        }
+    }
 
     public int Age
     {

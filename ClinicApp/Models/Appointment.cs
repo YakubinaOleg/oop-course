@@ -1,4 +1,7 @@
-﻿namespace ClinicApp;
+﻿using ClinicApp.Enums;
+using ClinicApp.Utils;
+
+namespace ClinicApp.Models;
 
 public class Appointment
 {
@@ -8,7 +11,16 @@ public class Appointment
     public int PatientId { get; }
     public int DoctorId { get; }
     public DateTime ScheduledAt { get; set; }
-    public int DurationMinutes { get; set; }
+    private int _durationMinutes;
+    public int DurationMinutes
+    {
+        get => _durationMinutes;
+        set
+        {
+            ClinicValidator.ValidatePositive(value, nameof(DurationMinutes));
+            _durationMinutes = value;
+        }
+    }
     public AppointmentStatus Status { get; private set; }
     public string Notes { get; private set; }
 
@@ -26,10 +38,7 @@ public class Appointment
         Notes = "";
     }
 
-    public Appointment()
-    {
-        Status = AppointmentStatus.Scheduled;
-    }
+    public Appointment() : this(0,0, DateTime.Now) { }
 
     public bool Cancel(string reason = "")
     {
@@ -37,6 +46,10 @@ public class Appointment
             return false;
 
         Status = AppointmentStatus.Cancelled;
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            Notes = $"Причина скасування: {reason}";
+        }
         return true;
     }
 

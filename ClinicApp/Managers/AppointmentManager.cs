@@ -1,4 +1,7 @@
-﻿namespace ClinicApp;
+﻿using ClinicApp.Models;
+using ClinicApp.Enums;
+
+namespace ClinicApp.Managers;
 
 public class AppointmentManager
 {
@@ -20,7 +23,7 @@ public class AppointmentManager
     }
 
     // ID
-    private Appointment FindById(int id)
+    private Appointment? FindById(int id)
     {
         for (int i = 0; i < _count; i++)
         {
@@ -41,14 +44,14 @@ public class AppointmentManager
             return false;
         }
 
-        Patient patient = _patients.FindById(patientId);
+        Patient? patient = _patients.FindById(patientId);
         if (patient == null)
         {
             Console.WriteLine($"Помилка: пацієнта з ID {patientId} не знайдено.");
             return false;
         }
 
-        Doctor doctor = _doctors.FindById(doctorId);
+        Doctor? doctor = _doctors.FindById(doctorId);
         if (doctor == null)
         {
             Console.WriteLine($"Помилка: лікаря з ID {doctorId} не знайдено.");
@@ -66,35 +69,44 @@ public class AppointmentManager
     // 2. Скасування 
     public bool Cancel(int id, string reason = "")
     {
-        Appointment App = FindById(id);
-        if (App != null)
+        Appointment? App = FindById(id);
+
+        if (App == null)
         {
-            bool success = App.Cancel(reason);
-            if (success)
-            {
-                Console.WriteLine($"Запис [{id}] скасовано.");
-            }
-            return success;
+            Console.WriteLine($"Запис з ID {id} не знайдено.");
+            return false;
         }
-        Console.WriteLine($"Запис з ID {id} не знайдено.");
-        return false;
+        bool success = App.Cancel(reason);
+        if (success)
+        {
+            Console.WriteLine($"[Успіх] Запис [{id}] успішно скасовано.");
+        }
+        else
+        {
+            Console.WriteLine($"[Помилка] Запис [{id}] неможливо скасувати (поточний статус: {App.Status}).");
+        }
+        return success;
     }
 
     // 3. Завершення
     public bool Complete(int id)
     {
-        Appointment app = FindById(id);
-        if (app != null)
+        Appointment? app = FindById(id);
+        if (app == null)
         {
-            bool success = app.Complete();
-            if (success)
-            {
-                Console.WriteLine($"Запис [{id}] завершено.");
-            }
-            return success;
+            Console.WriteLine($"Запис з ID {id} не знайдено.");
+            return false;
         }
-        Console.WriteLine($"Запис з ID {id} не знайдено.");
-        return false;
+        bool success = app.Complete();
+        if (success)
+        {
+            Console.WriteLine($"Запис [{id}] завершено.");
+        }
+        else
+        {
+            Console.WriteLine($"[Помилка] Запис [{id}] неможливо завершити (поточний статус: {app.Status}).");
+        }
+        return success;
     }
 
     // 4. всі записи пацика
@@ -204,8 +216,8 @@ public class AppointmentManager
     {
         if (app == null) return;
 
-        Patient patient = _patients.FindById(app.PatientId);
-        Doctor doctor = _doctors.FindById(app.DoctorId);
+        Patient? patient = _patients.FindById(app.PatientId);
+        Doctor? doctor = _doctors.FindById(app.DoctorId);
 
         string patientName = patient != null ? patient.FullName : $"Пацієнт #{app.PatientId}";
         string doctorName = doctor != null ? doctor.FullName : $"Лікар #{app.DoctorId}";
@@ -235,7 +247,7 @@ public class AppointmentManager
         }
     }
 
-    public Appointment this[int index]
+    public Appointment? this[int index]
     {
         get
         {

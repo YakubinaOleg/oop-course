@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text;
+﻿using ClinicApp.Enums;
 
-namespace ClinicApp;
+namespace ClinicApp.Utils;
 
 public static class ClinicFormatter
 {
@@ -34,7 +33,7 @@ public static class ClinicFormatter
             Speciality.Orthopedics => "Ортопедія",
             Speciality.Dermatology => "Дерматологія",
             Speciality.Emergency => "Швидка допомога",
-            _ => speciality.ToString()
+            _ => "Невідомо"
         };
     }
 
