@@ -39,7 +39,7 @@ public class PatientManager
         return null;
     }
 
-    public bool TryFindById(int id, out Patient patient)
+    public bool TryFindById(int id, out Patient? patient)
     {
         patient = FindById(id);
         return patient != null;
@@ -188,7 +188,7 @@ public class PatientManager
         Console.WriteLine($"Дорослих: {howManyAdults} з {_count}");
     }
 
-    public Patient this[int index]
+    public Patient? this[int index]
     {
         get
         {
