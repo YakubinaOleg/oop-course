@@ -240,14 +240,7 @@ static void ShowMedicalRecordsMenu(Clinic clinic)
                     string testName = Console.ReadLine()!;
 
                     Console.Write("Значення (число): ");
-                    if (double.TryParse(Console.ReadLine(), NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
-                    {
-                    }
-                    else
-                    {
-                        Console.WriteLine("Помилка: введено некоректне числове значення аналізу!");
-                        break;
-                    }
+                    double value = double.Parse(Console.ReadLine()!, NumberStyles.Float, CultureInfo.InvariantCulture);
 
                     Console.Write("Одиниці виміру: ");
                     string unit = Console.ReadLine()!;

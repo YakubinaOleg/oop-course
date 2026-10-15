@@ -62,7 +62,7 @@ public class AppointmentManager
         _appointments[_count] = newAppointment;
         _count++;
 
-        Console.WriteLine($"Запис [{newAppointment.Id}] створено: {patient.FullName} -> {doctor.FullName} о {scheduledAt:dd.MM.yyyy HH:mm}");
+        Console.WriteLine($"Зустріч [{newAppointment.Id}] створено: {patient.FullName} -> {doctor.FullName} о {scheduledAt:dd.MM.yyyy HH:mm}");
         return true;
     }
 

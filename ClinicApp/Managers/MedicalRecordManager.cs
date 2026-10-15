@@ -14,7 +14,7 @@ public class MedicalRecordManager
         if (_count < _record.Length)
         {
             _record[_count++] = record;
-            Console.WriteLine($"Запис #[{record.Id}] [{record.GetRecordType()}] успішно доданий.");
+            Console.WriteLine($"Запис [{record.Id}] {record.GetRecordType()} успішно доданий.");
         }
         else
         {

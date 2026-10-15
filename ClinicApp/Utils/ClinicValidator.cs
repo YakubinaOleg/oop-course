@@ -27,7 +27,7 @@ public static class ClinicValidator
     {
         if (string.IsNullOrWhiteSpace(value) || value.Length > 50)
         {
-            throw new ArgumentException("Некоректне ім'я/прізвище, максимум 50 символів.", fieldName);
+            throw new ArgumentException("Некоректне значення, максимум 50 символів.", fieldName);
         }
     }
     public static void ValidateDate(DateTime value, string fieldName)
