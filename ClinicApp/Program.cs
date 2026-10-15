@@ -1,8 +1,12 @@
-﻿using ClinicApp.Models;
+﻿using ClinicApp;
 using ClinicApp.Enums;
 using ClinicApp.Managers;
+using ClinicApp.Models;
 using ClinicApp.Utils;
-using ClinicApp;
+using System.Globalization;
+using System.Security.Cryptography;
+
+Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -22,59 +26,20 @@ clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
 clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(4), 45);
 clinic.Appointments.Book(3, 3, DateTime.Now.AddDays(3).AddHours(1), 60);
 
-WorkSchedule morning = new WorkSchedule(8, 14);
-WorkSchedule copy = morning; 
+clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-30), "I10", "Гіпертонічна хвороба", isChronic: true));
+clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-5), "J06.9", "Гострий ринофарингіт", isChronic: false));
 
-copy = new WorkSchedule(9, 15);
-Console.WriteLine($"Original morning: {morning.Display}"); 
-Console.WriteLine($"Modified copy:    {copy.Display}");   
+clinic.MedicalRecords.Add(new LabResult(1, 1, DateTime.Today.AddDays(-10), "Гемоглобін", 145.0, "г/л", "120-160", isNormal: true));
+clinic.MedicalRecords.Add(new LabResult(1, 1, DateTime.Today.AddDays(-10), "Холестерин", 6.2, "ммоль/л", "< 5.2", isNormal: false));
 
-Console.WriteLine("=== 1. ПЕРЕВІРКА СТАТИЧНОГО КЛАСУ ClinicFormatter ==="); 
-Console.WriteLine($"Група крові: {ClinicFormatter.FormatBloodType(BloodType.APositive)}"); 
-Console.WriteLine($"Спеціальність: {ClinicFormatter.FormatSpeciality(Speciality.Cardiology)}"); 
-Console.WriteLine($"Форматування віку (1, 3, 11 років): " +
-                  $"{ClinicFormatter.FormatAge(1)}, " +
-                  $"{ClinicFormatter.FormatAge(3)}, " +
-                  $"{ClinicFormatter.FormatAge(11)}"); 
-Console.WriteLine($"Форматування телефону: {ClinicFormatter.FormatPhone(clinic.Patients[1].Phone)}"); 
+clinic.MedicalRecords.Add(new Prescription(1, 1, DateTime.Today.AddDays(-5), "Лізиноприл", "10 мг", 30, "вранці"));
 
-Console.WriteLine("\n=== 2. ПЕРЕВІРКА ІНДЕКСАТОРІВ [index] ==="); 
-Patient patientFromIndex = clinic.Patients[0];
-Doctor doctorFromIndex = clinic.Doctors[0];
+clinic.MedicalRecords.Add(new Prescription(2, 1, DateTime.Today.AddDays(-40), "Ібупрофен", "400 мг", 10, "після їжі"));
+clinic.MedicalRecords.Add(new Diagnosis(2, 2, DateTime.Today.AddDays(-15), "E11", "Цукровий діабет 2 типу", isChronic: true));
+clinic.MedicalRecords.Add(new LabResult(2, 2, DateTime.Today.AddDays(-15), "Глюкоза", 120.0, "мг/л", "70-126", isNormal: true));
 
-Console.WriteLine($"Пацієнт за індексом [0]: {patientFromIndex}"); 
-Console.WriteLine($"Лікар за індексом [0]: {doctorFromIndex}");    
-
-Console.WriteLine("\nНатисніть Enter, щоб перейти до головного меню...");
-Console.ReadLine();
-Console.Clear();
-
-
-Console.WriteLine("=== 1. ПЕРЕВАНТАЖЕННЯ МЕТОДІВ ==="); 
-Doctor[] cardiologists = clinic.Doctors.FindBySpeciality(Speciality.Cardiology); 
-Doctor[] foundByString = clinic.Doctors.FindBySpeciality("cardio"); 
-Console.WriteLine($"Знайдено кардіологів (Enum): {cardiologists.Length}");
-Console.WriteLine($"Знайдено за рядком 'cardio': {foundByString.Length}");
-
-Appointment[] todayAppts = clinic.Appointments.GetByDate(2026, 10, 1); 
-Console.WriteLine($"Записів на 01.10.2026: {todayAppts.Length}");
-
-Console.WriteLine("\n=== 2. ПАТЕРН TryFindById (out) ==="); 
-if (clinic.Patients.TryFindById(1, out Patient? patient)) 
-{
-    Console.WriteLine($"Знайдено: {patient.FirstName} {patient.LastName}"); 
-}
-else
-{
-    Console.WriteLine("Пацієнта не знайдено."); 
-}
-
-Console.WriteLine("\n=== 3. ОПЕРАТОРИ ?. ТА ?? ===");
-string existingName = clinic.Patients.FindById(1)?.FirstName ?? "Не знайдено"; 
-string missingName = clinic.Patients.FindById(99)?.FirstName ?? "Не знайдено"; 
-
-Console.WriteLine($"Пацієнт ID=1: {existingName}");
-Console.WriteLine($"Пацієнт ID=99: {missingName}"); 
+clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Гемоглобін", 150.0, "г/л", "120-160", isNormal: true));
+clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
 ShowMainMenu(clinic);
 
@@ -87,8 +52,9 @@ static void ShowMainMenu(Clinic clinic)
         Console.WriteLine("1. Управління пацієнтами");
         Console.WriteLine("2. Управління лікарями");
         Console.WriteLine("3. Управління записами");
-        Console.WriteLine("4. Рапорт клініки");
-        Console.WriteLine("5. Всі записи на сьогодні");
+        Console.WriteLine("4. Медична картка");
+        Console.WriteLine("5. Рапорт клініки");
+        Console.WriteLine("6. Всі записи на сьогодні");
         Console.WriteLine("0. Вихід з програми");
         Console.Write("Оберіть розділ: ");
 
@@ -109,15 +75,289 @@ static void ShowMainMenu(Clinic clinic)
                 break;
 
             case "4":
-                clinic.GenerateReport();
+                ShowMedicalRecordsMenu(clinic);
                 break;
 
             case "5":
+                clinic.GenerateReport();
+                break;
+
+            case "6":
                 clinic.DisplaySchedule(DateTime.Today);
                 break;
 
             case "0":
                 Console.WriteLine("Завершення роботи програми...");
+                return;
+
+            default:
+                Console.WriteLine("Невірний вибір! Спробуйте ще раз.");
+                break;
+        }
+    }
+}
+
+static void ShowMedicalRecordsMenu(Clinic clinic)
+{
+    while (true)
+    {
+        Console.WriteLine("\n--- Медична картка ---");
+        Console.WriteLine("1. Картка пацієнта");
+        Console.WriteLine("2. Усі записа пацієнта");
+        Console.WriteLine("3. Додати діагноз");
+        Console.WriteLine("4. Додати аналіз");
+        Console.WriteLine("5. Додати рецепцт");
+        Console.WriteLine("6. Усі записи лікаря");
+        Console.WriteLine("0. Повернутися в головне меню");
+        Console.Write("Оберіть дію: ");
+
+        string choice = Console.ReadLine()!;
+
+        switch (choice)
+        {
+            case "1":
+                clinic.Patients.DisplayAll();
+                Console.Write("Введіть id пацієнта: ");
+                string input = Console.ReadLine()!;
+
+                if (int.TryParse(input, out int id))
+                {
+                    var patient = clinic.Patients.FindById(id);
+                    if (patient == null)
+                    {
+                        Console.WriteLine("Помилка: Пацієнта з таким ID не знайдено!");
+                        break; 
+                    }
+                    clinic.MedicalRecords.DisplayPatientSummary(id);
+                }
+                else
+                {   
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                }
+                break;
+
+            case "2":
+                clinic.Patients.DisplayAll();
+                Console.Write("Введіть id пацієнта: ");
+                if (int.TryParse(Console.ReadLine(), out int patientId))
+                {
+                    var patient = clinic.Patients.FindById(patientId);
+                    if (patient == null)
+                    {
+                        Console.WriteLine("Помилка: Пацієнта з таким ID не знайдено!");
+                        break;
+                    }
+                    var records = clinic.MedicalRecords.GetByPatientId(patientId);
+
+                    if (records.Length == 0)
+                    {
+                        Console.WriteLine("У цього пацієнта немає записів.");
+                    }
+                    else
+                    {
+                        foreach (var record in records)
+                        {
+                            Console.WriteLine(record); 
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                }
+                break;
+
+            case "3":
+                try
+                {
+                    clinic.Patients.DisplayAll();
+                    Console.Write("ID пацієнта: ");
+                    int pId = int.Parse(Console.ReadLine()!);
+                    if (clinic.Patients.FindById(pId) == null)
+                    {
+                        Console.WriteLine("Помилка: Пацієнта з таким ID не знайдено!");
+                        break;
+                    }
+
+                    clinic.Doctors.DisplayAll();
+                    Console.Write("ID доктора: ");
+                    int dId = int.Parse(Console.ReadLine()!);
+                    if (clinic.Doctors.FindById(dId) == null)
+                    {
+                        Console.WriteLine("Помилка: Лікаря з таким ID не знайдено!");
+                        break;
+                    }
+
+                    Console.Write("Код діагнозу(напр. J06.9): ");
+                    string code = Console.ReadLine()!;
+
+                    Console.Write("Опис: ");
+                    string description = Console.ReadLine()!;
+
+                    Console.Write("Хронічне? (1=так, 0=ні): ");
+                    int chronicInput = int.Parse(Console.ReadLine()!);
+                    bool isChronic = (chronicInput == 1);
+
+                    Diagnosis diagnosis = new Diagnosis(pId, dId, DateTime.Today, code, description, isChronic);
+                    clinic.MedicalRecords.Add(diagnosis);
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                }
+                break;
+
+            case "4":
+                try
+                {
+                    clinic.Patients.DisplayAll();
+                    Console.Write("ID пацієнта: ");
+                    int pId = int.Parse(Console.ReadLine()!);
+                    if (clinic.Patients.FindById(pId) == null)
+                    {
+                        Console.WriteLine("Помилка: Пацієнта з таким ID не знайдено!");
+                        break;
+                    }
+
+                    clinic.Doctors.DisplayAll();
+                    Console.Write("ID доктора: ");
+                    int dId = int.Parse(Console.ReadLine()!);
+                    if (clinic.Doctors.FindById(dId) == null)
+                    {
+                        Console.WriteLine("Помилка: Лікаря з таким ID не знайдено!");
+                        break;
+                    }
+
+                    Console.Write("Назва аналізу: ");
+                    string testName = Console.ReadLine()!;
+
+                    Console.Write("Значення (число): ");
+                    if (double.TryParse(Console.ReadLine(), NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+                    {
+                    }
+                    else
+                    {
+                        Console.WriteLine("Помилка: введено некоректне числове значення аналізу!");
+                        break;
+                    }
+
+                    Console.Write("Одиниці виміру: ");
+                    string unit = Console.ReadLine()!;
+
+                    Console.Write("Норма (напр. 4.0-9.0): ");
+                    string rRange = Console.ReadLine()!;
+
+                    Console.Write("В нормі? (1=так, 0=ні): ");
+                    int normalInput = int.Parse(Console.ReadLine()!);
+                    bool isNormal = (normalInput == 1);
+
+                    LabResult labResult = new LabResult(pId, dId, DateTime.Today, testName, value, unit, rRange, isNormal);
+                    clinic.MedicalRecords.Add(labResult);
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Помилка: введено некоректне число або формат даних!");
+                }
+                break;
+
+            case "5":
+                try
+                {
+                    clinic.Patients.DisplayAll();
+                    Console.Write("ID пацієнта: ");
+                    int pId = int.Parse(Console.ReadLine()!);
+                    if (clinic.Patients.FindById(pId) == null)
+                    {
+                        Console.WriteLine("Помилка: Пацієнта з таким ID не знайдено!");
+                        break;
+                    }
+
+                    clinic.Doctors.DisplayAll();
+                    Console.Write("ID доктора: ");
+                    int dId = int.Parse(Console.ReadLine()!);
+                    if (clinic.Doctors.FindById(dId) == null)
+                    {
+                        Console.WriteLine("Помилка: Лікаря з таким ID не знайдено!");
+                        break;
+                    }
+
+                    Console.Write("Препарат: ");
+                    string medication = Console.ReadLine()!;
+
+                    Console.Write("Дозування (напр. 10 мг): ");
+                    string dosage = Console.ReadLine()!;
+
+                    Console.Write("Кількість днів (ціле): ");
+                    int durationDays = int.Parse(Console.ReadLine()!);
+
+                    Console.Write("Інструкція (Enter — пропустити): ");
+                    string instructions = Console.ReadLine()!;
+
+                    Prescription prescription = new Prescription(pId, dId, DateTime.Today, medication, dosage, durationDays, instructions);
+                    clinic.MedicalRecords.Add(prescription);
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine($"Помилка: {ex.Message}");
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                }
+                break;
+
+            case "6":
+                clinic.Doctors.DisplayAll();
+                Console.Write("Введіть id доктора: ");
+                if (int.TryParse(Console.ReadLine(), out int doctorId))
+                {
+                    var doctor = clinic.Doctors.FindById(doctorId);
+                    if (doctor == null)
+                    {
+                        Console.WriteLine("Помилка: Доктора з таким ID не знайдено!");
+                        break;
+                    }
+                    var records = clinic.MedicalRecords.GetByDoctorId(doctorId);
+
+                    if (records.Length == 0)
+                    {
+                        Console.WriteLine("У цього доктора немає записів.");
+                    }
+                    else
+                    {
+                        foreach (var record in records)
+                        {
+                            Console.WriteLine(record);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                }
+                break;
+
+            case "0":
                 return;
 
             default:
