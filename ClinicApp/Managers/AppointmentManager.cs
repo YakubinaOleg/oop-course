@@ -255,4 +255,14 @@ public class AppointmentManager
             return _appointments[index];
         }
     }
+
+    public Appointment[] GetAll()
+    {
+        Appointment[] arr = new Appointment[_count];
+        for(int i = 0; i < _count; i++)
+        {
+            arr[i] = _appointments[i];
+        }
+        return arr;
+    }
 }
