@@ -1,10 +1,32 @@
 ﻿using ClinicApp.Enums;
 using ClinicApp.Utils;
+using ClinicApp.Interfaces;
 
 namespace ClinicApp.Models;
 
-public class Doctor
+public class Doctor : ISchedulable
 {
+
+    public bool CanSchedule(DateTime at)
+    {
+        return CanAcceptAt(at.Hour);
+    }
+
+    public DateTime[] GetAvailableSlots(DateTime date, int  SlotCount)
+    {
+        ClinicValidator.ValidatePositive(SlotCount, nameof(SlotCount));
+        int smallest = Math.Min(SlotCount, Schedule.HoursPerDay);
+
+        var slots = new DateTime[smallest];
+
+        DateTime baseTime = date.Date.AddHours(Schedule.Start);
+
+        for (int i = 0; i < smallest; i++)
+        {
+            slots[i] = baseTime.AddHours(i);
+        }
+        return slots;
+    }
     private static int _nextId = 1;
 
     public int Id { get; }
