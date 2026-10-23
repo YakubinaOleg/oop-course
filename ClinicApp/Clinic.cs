@@ -9,6 +9,7 @@ namespace ClinicApp;
     public PatientManager Patients { get; }
     public DoctorManager Doctors { get; }
     public AppointmentManager Appointments { get; }
+    public BillingManager Billing { get; }
 
     public MedicalRecordManager MedicalRecords {  get; }
 
@@ -19,6 +20,8 @@ namespace ClinicApp;
         Doctors = new DoctorManager();
         Appointments = new AppointmentManager(Patients, Doctors);
         MedicalRecords = new MedicalRecordManager();
+        Billing = new BillingManager(Appointments);
+    
     }
 
     public void DisplaySchedule(DateTime date)
