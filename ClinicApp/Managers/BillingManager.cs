@@ -89,13 +89,20 @@ namespace ClinicApp.Managers
 
         public bool PayAppointment(int appointmentId)
         {
-            var app = _appointmentManager[appointmentId];
-            if (app != null && app.IsCancelled == false && app.IsPaid == false)
+            Appointment[] all = _appointmentManager.GetAll();
+
+            for (int i = 0; i < all.Length; i++)
             {
-                app.MarkPaid();
-                return true;
+                if (all[i].Id == appointmentId)
+                {
+                    if (all[i].IsPaid || all[i].IsCancelled)
+                        return false;
+
+                    all[i].MarkPaid();
+                    return true;
+                }
             }
-            return false;
+            return false; 
         }
 
         public void DisplayUnpaid(IPayable[] items)
