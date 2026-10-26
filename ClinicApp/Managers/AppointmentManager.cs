@@ -8,11 +8,11 @@ namespace ClinicApp.Managers;
 public class AppointmentManager
 {
     private const int MaxAppointments = 500;
-    private Appointment[] _appointments;
+    private readonly Appointment[] _appointments;
     private int _count;
 
-    private PatientManager _patients;
-    private DoctorManager _doctors;
+    private readonly PatientManager _patients;
+    private readonly DoctorManager _doctors;
 
     public int Count => _count;
 
@@ -265,7 +265,7 @@ public class AppointmentManager
         string patientName = patient != null ? patient.FullName : $"Пацієнт #{app.PatientId}";
         string doctorName = doctor != null ? doctor.FullName : $"Лікар #{app.DoctorId}";
 
-        string line = $"[{app.Id}] {patientName} -> {doctorName} | {app.ScheduledAt:dd.MM.yyyy HH:mm}-{app.EndsAt:HH:mm} | {app.Status}";
+        string line = $"[{app.Id}] {app.GetDescription()} | {patientName} -> {doctorName} | {app.ScheduledAt:dd.MM.yyyy HH:mm}-{app.EndsAt:HH:mm} | {app.Status} | {app.GetCost():F2} грн";
 
         if (app.Notes != null && app.Notes.Length > 0)
         {
@@ -320,5 +320,76 @@ public class AppointmentManager
             }
         }
         return cancelledCount;
+    }
+
+    public Appointment[] GetUrgent()
+    {
+        int counts = 0;
+        for (int i = 0; i < Count; i++)
+        {
+            if (_appointments[i] is UrgentAppointment)
+            {
+                counts++;
+            }
+        }
+
+        Appointment[] newUA = new Appointment[counts];
+        int index = 0;
+
+        for (int i = 0; i < Count; i++) 
+        {
+            if (_appointments[i] is UrgentAppointment)
+            {
+                newUA[index++] = _appointments[i];
+            }
+        }
+        return newUA;
+    }
+    public Appointment[] GetSpecialist()
+    {
+        int counts = 0;
+        for (int i = 0; i < Count; i++)
+        {
+            if (_appointments[i] is SpecialistAppointment)
+            {
+                counts++;
+            }
+        }
+
+        Appointment[] newSA = new Appointment[counts];
+        int index = 0;
+
+        for (int i = 0; i < Count; i++)
+        {
+            if (_appointments[i] is SpecialistAppointment)
+            {
+                newSA[index++] = _appointments[i];
+            }
+        }
+        return newSA;
+    }
+
+    public Appointment[] GetRegular()
+    {
+        int counts = 0;
+        for (int i = 0; i < Count; i++)
+        {
+            if (_appointments[i] is RegularAppointment)
+            {
+                counts++;
+            }
+        }
+
+        Appointment[] newRA = new Appointment[counts];
+        int index = 0;
+
+        for (int i = 0; i < Count; i++)
+        {
+            if (_appointments[i] is RegularAppointment)
+            {
+                newRA[index++] = _appointments[i];
+            }
+        }
+        return newRA;
     }
 }

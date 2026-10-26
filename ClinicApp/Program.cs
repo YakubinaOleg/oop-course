@@ -27,6 +27,8 @@ clinic.Doctors.Add(new Doctor("Сергій", "Кравченко", Speciality.S
 clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
 clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(2).AddHours(4), 45);
 clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(3).AddHours(1), 60);
+clinic.Appointments.BookUrgent(1, 1, DateTime.Now.AddDays(2).AddHours(6), "", 45);
+clinic.Appointments.BookSpecialist(1, 1, DateTime.Now.AddDays(3).AddHours(3), "", 60);
 
 clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-30), "I10", "Гіпертонічна хвороба", isChronic: true));
 clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-5), "J06.9", "Гострий ринофарингіт", isChronic: false));
@@ -55,12 +57,11 @@ Console.WriteLine($"Через UrgentAppointment: {urgentObj.GetDescription()} |
  * 
  * 1. Чому GetDescription() через змінну типу Appointment дає опис термінового прийому?
  *    — Тому що метод GetDescription() був оголошений як virtual у базовому класі та override у нащадку. 
- *      Це справжній поліморфізм: компілятор викликає метод на основі реального типу об'єкта в пам'яті (UrgentAppointment), 
+ *      Це поліморфізм: компілятор викликає метод на основі реального типу об'єкта в пам'яті (UrgentAppointment), 
  *      а не типу самої змінної.
  * 
  * 2. Чому GetPriority() через ту саму змінну повертає 3, хоча об'єкт — UrgentAppointment?
  *    — Тому що у базі GetPriority() не був віртуальним, а в нащадку використано ключове слово new (приховування/hiding). 
- *      Вибір методу визначається статику — типом змінної (Appointment), через яку ми звертаємось.
  * 
  * 3. Що треба змінити в Appointment і UrgentAppointment, щоб GetPriority() теж працював поліморфно?
  *    — Треба у базовому класі Appointment зробити метод GetPriority() віртуальним (додати virtual), 
@@ -707,7 +708,7 @@ static void ShowDoctorMenu(Clinic clinic)
 
                     ISchedulable doctorSchedule = doctor;
                     Console.Write("Дата (dd.MM.yyyy): ");
-                    string dateStr = Console.ReadLine();
+                    string dateStr = Console.ReadLine()!;
                     if (DateTime.TryParseExact(dateStr, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                     {
                         Console.Write("Скільки слотів: ");
@@ -782,6 +783,7 @@ static void ShowAppointmentMenu(Clinic clinic)
         Console.WriteLine("6. Переглянути записи пацієнта");
         Console.WriteLine("7. Переглянути записи лікаря");
         Console.WriteLine("8. Скасувати всі записи пацієнта");
+        Console.WriteLine("9. За типом прийому");
         Console.WriteLine("0. Повернутися в головне меню");
         Console.Write("Оберіть дію: ");
 
@@ -884,6 +886,41 @@ static void ShowAppointmentMenu(Clinic clinic)
                     var patientAppointments = clinic.Appointments.GetByPatient(patientIdForCancel);
                     int canceledCount = AppointmentManager.CancelAll(patientAppointments, Reason);
                     Console.WriteLine($"Скасовано записів: {canceledCount}");
+                }
+                break;
+
+            case "9":
+                Console.WriteLine("\n--- За типом прийому ---");
+                Console.WriteLine("1. Термінові");
+                Console.WriteLine("2. Консультації спеціаліста");
+                Console.WriteLine("3. Звичайні");
+                Console.Write("Оберіть: ");
+
+                string subChoice = Console.ReadLine()!;
+                Appointment[]? filteredAppointments = subChoice switch
+                {
+                    "1" => clinic.Appointments.GetUrgent(),
+                    "2" => clinic.Appointments.GetSpecialist(),
+                    "3" => clinic.Appointments.GetRegular(),
+                    _ => null
+                };
+
+                if (filteredAppointments == null)
+                {
+                    Console.WriteLine("Невірний вибір підкатегорії.");
+                    break;
+                }
+
+                if (filteredAppointments.Length == 0)
+                {
+                    Console.WriteLine("Записів такого типу не знайдено.");
+                }
+                else
+                {
+                    foreach (var app in filteredAppointments)
+                    {
+                        clinic.Appointments.DisplayAppointment(app);
+                    }
                 }
                 break;
 
