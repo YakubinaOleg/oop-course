@@ -43,6 +43,33 @@ clinic.MedicalRecords.Add(new LabResult(2, 2, DateTime.Today.AddDays(-15), "Гл
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Гемоглобін", 150.0, "г/л", "120-160", isNormal: true));
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
+UrgentAppointment urgentObj = new UrgentAppointment(1, 1, DateTime.Now, "тест");
+Appointment refAsAppointment = urgentObj;
+
+Console.WriteLine("-- new vs override --");
+Console.WriteLine($"Через Appointment:    {refAsAppointment.GetDescription()} | пріоритет {refAsAppointment.GetPriority()}");
+Console.WriteLine($"Через UrgentAppointment: {urgentObj.GetDescription()} | пріоритет {urgentObj.GetPriority()}");
+
+/*
+ * ВІДПОВІДІ:
+ * 
+ * 1. Чому GetDescription() через змінну типу Appointment дає опис термінового прийому?
+ *    — Тому що метод GetDescription() був оголошений як virtual у базовому класі та override у нащадку. 
+ *      Це справжній поліморфізм: компілятор викликає метод на основі реального типу об'єкта в пам'яті (UrgentAppointment), 
+ *      а не типу самої змінної.
+ * 
+ * 2. Чому GetPriority() через ту саму змінну повертає 3, хоча об'єкт — UrgentAppointment?
+ *    — Тому що у базі GetPriority() не був віртуальним, а в нащадку використано ключове слово new (приховування/hiding). 
+ *      Вибір методу визначається статику — типом змінної (Appointment), через яку ми звертаємось.
+ * 
+ * 3. Що треба змінити в Appointment і UrgentAppointment, щоб GetPriority() теж працював поліморфно?
+ *    — Треба у базовому класі Appointment зробити метод GetPriority() віртуальним (додати virtual), 
+ *      а в UrgentAppointment перевизначити його через override замість new.
+ */
+
+
+
+
 
 
 ShowMainMenu(clinic);
