@@ -4,7 +4,7 @@ using ClinicApp.Interfaces;
 
 namespace ClinicApp.Models;
 
-public class Doctor : ISchedulable
+public class Doctor : ISchedulable, IIdentifiable
 {
 
     public bool CanSchedule(DateTime at)
