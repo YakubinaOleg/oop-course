@@ -46,6 +46,15 @@ clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Ге�
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
 
+Repository<Patient> repo = new Repository<Patient>();
+Patient p1 = new Patient("Тест", "Один", new DateTime(2000, 1, 1), BloodType.APositive, "0501111111", "t1@gmail.com");
+Patient p2 = new Patient("Тест", "Два", new DateTime(2001, 2, 2), BloodType.BPositive, "0502222222", "t2@gmail.com");
+repo.Add(p1);
+repo.Add(p2);
+Console.WriteLine(repo.GetById(p2.Id)?.FullName);  // ім'я p2
+Console.WriteLine(repo.Remove(p1.Id));             // True
+Console.WriteLine(repo.Count);
+
 ShowMainMenu(clinic);
 static void ShowMainMenu(Clinic clinic)
 {
