@@ -3,33 +3,25 @@ using ClinicApp.Enums;
 
 namespace ClinicApp.Managers;
 
-
 public class PatientManager
 {
-    private const int MaxPatients = 100;
-    private Patient[] _patients = new Patient[MaxPatients];
-    private int _count = 0;
+    private List<Patient> _patients = new List<Patient>();
 
-    public int Count => _count;
+    public Patient[] GetAll() => _patients.ToArray();
 
-    // 1. ДОДАВАННЯ 
+    public int Count => _patients.Count;
+
+    // 1. ДОДАВАННЯ
     public void Add(Patient patient)
     {
-        if (_count < MaxPatients)
-        {
-            _patients[_count++] = patient;
-            Console.WriteLine($"Пацієнта [{patient.Id}] {patient.FullName} додано.");
-        }
-        else
-        {
-            Console.WriteLine($"Не вдалося додати пацієнта [{patient.Id}] {patient.FullName}, перевищено ліміт ({MaxPatients}).");
-        }
+        _patients.Add(patient);
+        Console.WriteLine($"Пацієнта [{patient.Id}] {patient.FullName} додано.");
     }
 
     // 2. ID
     public Patient? FindById(int id)
     {
-        for (int i = 0; i < _count; ++i)
+        for (int i = 0; i < _patients.Count; ++i)
         {
             if (_patients[i].Id == id)
             {
@@ -45,38 +37,27 @@ public class PatientManager
         return patient != null;
     }
 
-    // 3. ІМ'Я АБО ПРІЗВИЩЕ 
+    // 3. ІМ'Я АБО ПРІЗВИЩЕ
     public Patient[] FindByName(string name)
     {
-        int count = 0;
-        for (int i = 0; i < _count; ++i)
+        List<Patient> result = new List<Patient>();
+
+        for (int i = 0; i < _patients.Count; ++i)
         {
             if (_patients[i].FirstName.Contains(name, StringComparison.OrdinalIgnoreCase) ||
                 _patients[i].LastName.Contains(name, StringComparison.OrdinalIgnoreCase))
             {
-                count++;
+                result.Add(_patients[i]);
             }
         }
 
-        Patient[] result = new Patient[count];
-        int index = 0;
-
-        for (int i = 0; i < _count; ++i)
-        {
-            if (_patients[i].FirstName.Contains(name, StringComparison.OrdinalIgnoreCase) ||
-                _patients[i].LastName.Contains(name, StringComparison.OrdinalIgnoreCase))
-            {
-                result[index++] = _patients[i];
-            }
-        }
-
-        return result;
+        return result.ToArray();
     }
 
     public bool RemoveById(int id)
     {
         int index = -1;
-        for (int i = 0; i < _count; i++)
+        for (int i = 0; i < _patients.Count; i++)
         {
             if (_patients[i].Id == id)
             {
@@ -92,55 +73,39 @@ public class PatientManager
         }
 
         string removedName = _patients[index].FullName;
-
-        for (int i = index; i < _count - 1; i++)
-        {
-            _patients[i] = _patients[i + 1];
-        }
-
-        _patients[_count - 1] = null;
-        _count--;
+        _patients.RemoveAt(index);
 
         Console.WriteLine($"Пацієнта [{id}] {removedName} успішно видалено.");
         return true;
     }
 
-    // ПОШУК ЗА ГРУПОЮ КРОВІ 
+    // ПОШУК ЗА ГРУПОЮ КРОВІ
     public Patient[] FindByBloodType(BloodType bloodType)
     {
-        int matchCount = 0;
-        for (int i = 0; i < _count; i++)
+        List<Patient> result = new List<Patient>();
+
+        for (int i = 0; i < _patients.Count; i++)
         {
             if (_patients[i].BloodType == bloodType)
             {
-                matchCount++;
+                result.Add(_patients[i]);
             }
         }
 
-        Patient[] result = new Patient[matchCount];
-        int resultIndex = 0;
-        for (int i = 0; i < _count; i++)
-        {
-            if (_patients[i].BloodType == bloodType)
-            {
-                result[resultIndex++] = _patients[i];
-            }
-        }
-
-        return result;
+        return result.ToArray();
     }
 
     // 5. ВИВІД УСІХ
     public void DisplayAll()
     {
-        if (_count == 0)
+        if (_patients.Count == 0)
         {
             Console.WriteLine("Список пацієнтів порожній.");
         }
         else
         {
-            Console.WriteLine($"=== Пацієнти ({_count} / {MaxPatients}) ===");
-            for (int i = 0; i < _count; ++i)
+            Console.WriteLine($"=== Пацієнти ({_patients.Count}) ===");
+            for (int i = 0; i < _patients.Count; ++i)
             {
                 Console.WriteLine(_patients[i]);
             }
@@ -150,18 +115,18 @@ public class PatientManager
     // 6. СТАТИСТИКА
     public void DisplayStats()
     {
-        if (_count == 0)
+        if (_patients.Count == 0)
         {
             Console.WriteLine("Немає даних для статистики.");
             return;
         }
 
         double sumAge = 0;
-        int smallestOneIdx =  0;
+        int smallestOneIdx = 0;
         int biggestOneIdx = 0;
         int howManyAdults = 0;
 
-        for (int i = 0; i < _count; ++i)
+        for (int i = 0; i < _patients.Count; ++i)
         {
             sumAge += _patients[i].Age;
             if (_patients[i].Age < _patients[smallestOneIdx].Age)
@@ -178,21 +143,21 @@ public class PatientManager
             }
         }
 
-        double averageAge = sumAge / _count;
+        double averageAge = sumAge / _patients.Count;
 
         Console.WriteLine("\n=== Статистика пацієнтів ===");
-        Console.WriteLine($"Всього: {_count}");
+        Console.WriteLine($"Всього: {_patients.Count}");
         Console.WriteLine($"Середній вік: {averageAge:F1} р.");
         Console.WriteLine($"Наймолодший: {_patients[smallestOneIdx].FullName} ({_patients[smallestOneIdx].Age} р.)");
         Console.WriteLine($"Найстарший: {_patients[biggestOneIdx].FullName} ({_patients[biggestOneIdx].Age} р.)");
-        Console.WriteLine($"Дорослих: {howManyAdults} з {_count}");
+        Console.WriteLine($"Дорослих: {howManyAdults} з {_patients.Count}");
     }
 
     public Patient? this[int index]
     {
         get
         {
-            if (index < 0 || index >= _count) return null;
+            if (index < 0 || index >= _patients.Count) return null;
             return _patients[index];
         }
     }
