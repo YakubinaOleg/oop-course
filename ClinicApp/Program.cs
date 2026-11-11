@@ -1,4 +1,5 @@
 ﻿using ClinicApp;
+using ClinicApp.Comparators;
 using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
@@ -46,14 +47,18 @@ clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Ге�
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
 
-Repository<Patient> repo = new Repository<Patient>();
-Patient p1 = new Patient("Тест", "Один", new DateTime(2000, 1, 1), BloodType.APositive, "0501111111", "t1@gmail.com");
-Patient p2 = new Patient("Тест", "Два", new DateTime(2001, 2, 2), BloodType.BPositive, "0502222222", "t2@gmail.com");
-repo.Add(p1);
-repo.Add(p2);
-Console.WriteLine(repo.GetById(p2.Id)?.FullName);  // ім'я p2
-Console.WriteLine(repo.Remove(p1.Id));             // True
-Console.WriteLine(repo.Count);
+Console.WriteLine("--- Усі лікарі ---");
+foreach (DoctorStats s in clinic.Analytics.ComputeDoctorStats())
+{
+    Console.WriteLine(s);
+}
+
+Console.WriteLine("--- Лише перший (лінивість) ---");
+foreach (DoctorStats s in clinic.Analytics.ComputeDoctorStats())
+{
+    Console.WriteLine(s);
+    break;
+}
 
 ShowMainMenu(clinic);
 static void ShowMainMenu(Clinic clinic)
@@ -71,6 +76,7 @@ static void ShowMainMenu(Clinic clinic)
         Console.WriteLine("│ 5. Рахунки        — оплата, борги            │");
         Console.WriteLine("│ 6. Черга          — очікування, прийом       │");
         Console.WriteLine("│ 7. Звіт           — загальна статистика      │");
+        Console.WriteLine("│ 8. Аналітика      — статистика, рейтинги     │");
         Console.WriteLine("│ 0. Вийти                                     │");
         Console.WriteLine("└──────────────────────────────────────────────┘");
         Console.Write("Оберіть розділ: ");
@@ -107,6 +113,10 @@ static void ShowMainMenu(Clinic clinic)
                 clinic.GenerateReport();
                 break;
 
+            case "8":
+                AnalyticsMenu(clinic);
+                break;
+
             case "0":
                 Console.WriteLine("Завершення роботи програми...");
                 return;
@@ -115,6 +125,107 @@ static void ShowMainMenu(Clinic clinic)
                 Console.WriteLine("Невірний вибір! Спробуйте ще раз.");
                 break;
         }
+    }
+}
+
+static List<DoctorStats> CollectDoctorStats(Clinic clinic)
+{
+    List<DoctorStats> list = new List<DoctorStats>();
+    foreach (DoctorStats s in clinic.Analytics.ComputeDoctorStats())
+    {
+        list.Add(s);
+    }
+    return list;
+}
+
+static List<PatientStats> CollectPatientStats(Clinic clinic)
+{
+    List<PatientStats> list = new List<PatientStats>();
+    foreach (PatientStats s in clinic.Analytics.ComputePatientStats())
+    {
+        list.Add(s);
+    }
+    return list;
+}
+
+static void AnalyticsMenu(Clinic clinic)
+{
+    while (true)
+    {
+        Console.WriteLine("\n──────────────── Аналітика ──────────────────");
+        Console.WriteLine("1. Лікарі за навантаженням");
+        Console.WriteLine("2. Лікарі за виручкою");
+        Console.WriteLine("3. Лікарі за іменем");
+        Console.WriteLine("4. Пацієнти за кількістю візитів");
+        Console.WriteLine("5. Пацієнти за витратами");
+        Console.WriteLine("0. Назад");
+        Console.Write("Оберіть: ");
+
+        string choice = Console.ReadLine() ?? "";
+
+        switch (choice)
+        {
+            case "1":
+                {
+                    List<DoctorStats> list = CollectDoctorStats(clinic);
+                    list.Sort();
+                    PrintStats(list);
+                    break;
+                }
+
+            case "2":
+                {
+                    List<DoctorStats> list = CollectDoctorStats(clinic);
+                    list.Sort(new DoctorStatsByRevenue());
+                    PrintStats(list);
+                    break;
+                }
+
+            case "3":
+                {
+                    List<DoctorStats> list = CollectDoctorStats(clinic);
+                    list.Sort(new DoctorStatsByName());
+                    PrintStats(list);
+                    break;
+                }
+
+            case "4":
+                {
+                    List<PatientStats> list = CollectPatientStats(clinic);
+                    list.Sort();
+                    PrintStats(list);
+                    break;
+                }
+
+            case "5":
+                {
+                    List<PatientStats> list = CollectPatientStats(clinic);
+                    list.Sort(new PatientStatsBySpent());
+                    PrintStats(list);
+                    break;
+                }
+
+            case "0":
+                return;
+
+            default:
+                Console.WriteLine("Невірний вибір! Спробуйте ще раз.");
+                break;
+        }
+    }
+}
+
+static void PrintStats<T>(List<T> list)
+{
+    if (list.Count == 0)
+    {
+        Console.WriteLine("Даних немає.");
+        return;
+    }
+
+    for (int i = 0; i < list.Count; i++)
+    {
+        Console.WriteLine(list[i]);
     }
 }
 static void WaitingRoomMenu(Clinic clinic)
