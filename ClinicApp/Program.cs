@@ -47,19 +47,6 @@ clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Ге�
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
 
-Console.WriteLine("--- Усі лікарі ---");
-foreach (DoctorStats s in clinic.Analytics.ComputeDoctorStats())
-{
-    Console.WriteLine(s);
-}
-
-Console.WriteLine("--- Лише перший (лінивість) ---");
-foreach (DoctorStats s in clinic.Analytics.ComputeDoctorStats())
-{
-    Console.WriteLine(s);
-    break;
-}
-
 ShowMainMenu(clinic);
 static void ShowMainMenu(Clinic clinic)
 {

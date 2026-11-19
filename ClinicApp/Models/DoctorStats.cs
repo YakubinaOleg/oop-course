@@ -27,7 +27,7 @@ public class DoctorStats : IComparable<DoctorStats>
     public override string ToString()
     {
         string last = LastAppointmentDate == DateTime.MinValue
-            ? "немає прийомів"
+            ? "—"
             : LastAppointmentDate.ToString("dd.MM.yyyy");
 
         return $"[{DoctorId}] {FullName} | Прийомів: {AppointmentCount} | Виручка: {TotalRevenue:F2} грн | Останній: {last}";
