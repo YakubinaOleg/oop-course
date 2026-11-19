@@ -130,6 +130,7 @@ static void FilesMenu(Clinic clinic)
         Console.WriteLine("\n──────────────── Файли ──────────────────");
         Console.WriteLine("1. Останні рядки лога");
         Console.WriteLine("2. Очистити лог");
+        Console.WriteLine("3. Експортувати всі звіти");
         Console.WriteLine("0. Назад");
         Console.Write("Оберіть: ");
 
@@ -161,6 +162,13 @@ static void FilesMenu(Clinic clinic)
             case "2":
                 clinic.Logger.Clear();
                 Console.WriteLine("Лог очищено.");
+                break;
+                
+            case "3":
+                string[] paths = clinic.Exporter.ExportAll();
+                for (int i = 0; i < paths.Length; i++)
+                    Console.WriteLine(paths[i]);
+                clinic.Logger.LogInfo("Експортовано всі звіти");
                 break;
 
             case "0":
@@ -1184,7 +1192,10 @@ static void ShowAppointmentMenu(Clinic clinic)
                 string reason = Console.ReadLine()!;
 
                 clinic.Appointments.Cancel(cancelId, reason);
-                clinic.Logger.LogInfo($"Запис #{cancelId} скасовано: {reason}");
+                if (clinic.Appointments.Cancel(cancelId, reason))
+                    clinic.Logger.LogInfo($"Запис #{cancelId} скасовано: {reason}");
+                else
+                    clinic.Logger.LogWarning($"Не вдалося скасувати запис #{cancelId}");
                 break;
 
             case "3":
@@ -1192,7 +1203,10 @@ static void ShowAppointmentMenu(Clinic clinic)
                 int completeId = int.Parse(Console.ReadLine()!);
 
                 clinic.Appointments.Complete(completeId);
-                clinic.Logger.LogInfo($"Запис #{completeId} завершено");
+                if (clinic.Appointments.Complete(completeId))
+                    clinic.Logger.LogInfo($"Запис #{completeId} завершено");
+                else
+                    clinic.Logger.LogWarning($"Не вдалося завершити запис #{completeId}");
                 break;
 
             case "4":

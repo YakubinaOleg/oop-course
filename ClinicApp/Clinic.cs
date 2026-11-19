@@ -21,6 +21,8 @@ namespace ClinicApp;
 
     public ClinicLogger Logger { get; }
 
+    public ClinicExporter Exporter { get; }
+
 
     public Clinic(string name)
     {
@@ -34,6 +36,7 @@ namespace ClinicApp;
         TreatmentPlans = new TreatmentPlanManager();
         Analytics = new AnalyticsManager(Appointments, Doctors, Patients);
         Logger = new ClinicLogger();
+        Exporter = new ClinicExporter(this);
     }
 
     public void DisplaySchedule(DateTime date)
