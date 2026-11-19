@@ -1,6 +1,7 @@
-﻿using System;
+﻿using ClinicApp.Managers;
 using ClinicApp.Models;
-using ClinicApp.Managers;
+using ClinicApp.Utils;
+using System;
 
 namespace ClinicApp;
     public class Clinic
@@ -18,6 +19,13 @@ namespace ClinicApp;
     public TreatmentPlanManager TreatmentPlans { get; }
     public AnalyticsManager Analytics { get; }
 
+    public ClinicLogger Logger { get; }
+
+    public ClinicExporter Exporter { get; }
+
+    public CsvImporter Importer { get; }
+
+    public SessionManager Session { get; }
 
     public Clinic(string name)
     {
@@ -30,6 +38,10 @@ namespace ClinicApp;
         WaitingRoom = new WaitingQueue<Patient>();
         TreatmentPlans = new TreatmentPlanManager();
         Analytics = new AnalyticsManager(Appointments, Doctors, Patients);
+        Logger = new ClinicLogger();
+        Exporter = new ClinicExporter(this);
+        Importer = new CsvImporter();
+        Session = new SessionManager();
     }
 
     public void DisplaySchedule(DateTime date)

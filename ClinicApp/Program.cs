@@ -45,6 +45,18 @@ clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Ге�
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
 
+if (clinic.Session.Exists())
+{
+    Console.Write("Знайдено збережену сесію. Завантажити? (y/n): ");
+    string loadAnswer = (Console.ReadLine() ?? "").Trim().ToLower();
+    if (loadAnswer == "y")
+    {
+        int loaded = clinic.Session.Load(clinic);
+        Console.WriteLine($"Завантажено {loaded} пацієнтів.");
+        clinic.Logger.LogInfo($"Завантажено сесію: {loaded} пацієнтів");
+    }
+}
+
 ShowMainMenu(clinic);
 static void ShowMainMenu(Clinic clinic)
 {
@@ -62,12 +74,13 @@ static void ShowMainMenu(Clinic clinic)
         Console.WriteLine("│ 6. Черга          — очікування, прийом       │");
         Console.WriteLine("│ 7. Звіт           — загальна статистика      │");
         Console.WriteLine("│ 8. Аналітика      — статистика, рейтинги     │");
-        Console.WriteLine("│ 9. Плани лікування — рефлексія, атрибути     │");
+        Console.WriteLine("│ 9. Плани          — рефлексія, атрибути      │");
+        Console.WriteLine("│ 10. Файли         — журнал, очищення         │");
         Console.WriteLine("│ 0. Вийти                                     │");
         Console.WriteLine("└──────────────────────────────────────────────┘");
         Console.Write("Оберіть розділ: ");
 
-        string choice = Console.ReadLine()!;  
+        string choice = Console.ReadLine()!;
 
         switch (choice)
         {
@@ -86,7 +99,7 @@ static void ShowMainMenu(Clinic clinic)
             case "4":
                 ShowMedicalRecordsMenu(clinic);
                 break;
-            
+
             case "5":
                 ShowBillingsMenu(clinic);
                 break;
@@ -107,8 +120,87 @@ static void ShowMainMenu(Clinic clinic)
                 ShowTreatmentPlansMenu(clinic);
                 break;
 
+            case "10":
+                FilesMenu(clinic);
+                break;
+
             case "0":
+                Console.Write("Зберегти сесію? (y/n): ");
+                string saveAnswer = (Console.ReadLine() ?? "").Trim().ToLower();
+                if (saveAnswer == "y")
+                {
+                    clinic.Session.Save(clinic);
+                    Console.WriteLine("Сесію збережено.");
+                    clinic.Logger.LogInfo("Сесію збережено");
+                }
                 Console.WriteLine("Завершення роботи програми...");
+                return;
+
+            default:
+                Console.WriteLine("Невірний вибір! Спробуйте ще раз.");
+                break;
+        }
+    }
+}
+
+static void FilesMenu(Clinic clinic)
+{
+    while (true)
+    {
+        Console.WriteLine("\n──────────────── Файли ──────────────────");
+        Console.WriteLine("1. Останні рядки лога");
+        Console.WriteLine("2. Очистити лог");
+        Console.WriteLine("3. Експортувати всі звіти");
+        Console.WriteLine("4. Імпорт пацієнтів з CSV");
+        Console.WriteLine("0. Назад");
+        Console.Write("Оберіть: ");
+
+        string choice = Console.ReadLine() ?? "";
+
+        switch (choice)
+        {
+            case "1":
+                Console.Write("Скільки рядків: ");
+                if (int.TryParse(Console.ReadLine(), out int n))
+                {
+                    string[] lines = clinic.Logger.GetLastLines(n);
+                    if (lines.Length == 0)
+                    {
+                        Console.WriteLine("Лог порожній або файлу немає.");
+                    }
+                    else
+                    {
+                        for (int i = 0; i < lines.Length; i++)
+                            Console.WriteLine(lines[i]);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                }
+                break;
+
+            case "2":
+                clinic.Logger.Clear();
+                Console.WriteLine("Лог очищено.");
+                break;
+                
+            case "3":
+                string[] paths = clinic.Exporter.ExportAll();
+                for (int i = 0; i < paths.Length; i++)
+                    Console.WriteLine(paths[i]);
+                clinic.Logger.LogInfo("Експортовано всі звіти");
+                break;
+
+            case "4":
+                Console.Write("Шлях до CSV-файлу: ");
+                string csvPath = (Console.ReadLine() ?? "").Trim().Trim('"');
+                ImportResult importResult = clinic.Importer.ImportPatients(clinic, csvPath);
+                importResult.Print();
+                clinic.Logger.LogInfo($"Імпорт CSV: імпортовано {importResult.Imported}, пропущено {importResult.Skipped}");
+                break;
+
+            case "0":
                 return;
 
             default:
@@ -296,6 +388,7 @@ static void PrintStats<T>(List<T> list)
         Console.WriteLine(list[i]);
     }
 }
+
 static void PrintPlans(TreatmentPlan[] plans)
 {
     if (plans.Length == 0)
@@ -309,6 +402,7 @@ static void PrintPlans(TreatmentPlan[] plans)
         Console.WriteLine($"[{plans[i].Id}] Пацієнт #{plans[i].PatientId} | {plans[i].Diagnosis} | {plans[i].DurationDays} дн. | {plans[i].Status}");
     }
 }
+
 static void WaitingRoomMenu(Clinic clinic)
 {
     while (true)
@@ -395,6 +489,7 @@ static void WaitingRoomMenu(Clinic clinic)
         }
     }
 }
+
 static void ShowBillingsMenu(Clinic clinic)
 {
     while (true)
@@ -437,9 +532,15 @@ static void ShowBillingsMenu(Clinic clinic)
                 if (int.TryParse(Console.ReadLine(), out int appointmentId))
                 {
                     if (clinic.Billing.PayAppointment(appointmentId))
+                    {
                         Console.WriteLine($"Запис [{appointmentId}] оплачено.");
+                        clinic.Logger.LogInfo($"Запис #{appointmentId} оплачено");
+                    }
                     else
+                    {
                         Console.WriteLine("Не вдалося оплатити: запис не знайдено, вже оплачено або скасовано.");
+                        clinic.Logger.LogWarning($"Не вдалося оплатити запис #{appointmentId}");
+                    }
                 }
                 else
                 {
@@ -490,12 +591,12 @@ static void ShowMedicalRecordsMenu(Clinic clinic)
                     if (patient == null)
                     {
                         Console.WriteLine("Помилка: Пацієнта з таким ID не знайдено!");
-                        break; 
+                        break;
                     }
                     clinic.MedicalRecords.DisplayPatientSummary(id);
                 }
                 else
-                {   
+                {
                     Console.WriteLine("Помилка: введено некоректне число!");
                 }
                 break;
@@ -521,7 +622,7 @@ static void ShowMedicalRecordsMenu(Clinic clinic)
                     {
                         foreach (var record in records)
                         {
-                            Console.WriteLine(record); 
+                            Console.WriteLine(record);
                         }
                     }
                 }
@@ -568,14 +669,17 @@ static void ShowMedicalRecordsMenu(Clinic clinic)
                 catch (ArgumentOutOfRangeException ex)
                 {
                     Console.WriteLine($"Помилка: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (ArgumentException ex)
                 {
                     Console.WriteLine($"Помилка: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("Помилка: введено некоректне число!");
+                    clinic.Logger.LogWarning("Помилка введення: некоректне число");
                 }
                 break;
 
@@ -622,14 +726,17 @@ static void ShowMedicalRecordsMenu(Clinic clinic)
                 catch (ArgumentOutOfRangeException ex)
                 {
                     Console.WriteLine($"Помилка: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (ArgumentException ex)
                 {
                     Console.WriteLine($"Помилка: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("Помилка: введено некоректне число або формат даних!");
+                    clinic.Logger.LogWarning("Помилка введення: некоректне число або формат даних");
                 }
                 break;
 
@@ -672,14 +779,17 @@ static void ShowMedicalRecordsMenu(Clinic clinic)
                 catch (ArgumentOutOfRangeException ex)
                 {
                     Console.WriteLine($"Помилка: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (ArgumentException ex)
                 {
                     Console.WriteLine($"Помилка: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("Помилка: введено некоректне число!");
+                    clinic.Logger.LogWarning("Помилка введення: некоректне число");
                 }
                 break;
 
@@ -773,18 +883,22 @@ static void ShowPatientMenu(Clinic clinic)
 
                     Patient newPatient = new Patient(firstName, lastName, birthDate, bloodType, phone, email);
                     clinic.Patients.Add(newPatient);
+                    clinic.Logger.LogInfo($"Додано пацієнта: {firstName} {lastName}");
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
                     Console.WriteLine($"[Помилка діапазону]: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (ArgumentException ex)
                 {
                     Console.WriteLine($"[Помилка валідації]: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("[Помилка формату]: Введено некоректне число або дату!");
+                    clinic.Logger.LogWarning("Помилка введення: некоректне число або дата");
                 }
                 break;
 
@@ -902,18 +1016,22 @@ static void ShowDoctorMenu(Clinic clinic)
 
                     Doctor newDoctor = new Doctor(firstName, lastName, speciality, licenseNumber, phone, new WorkSchedule(startHour, endHour));
                     clinic.Doctors.Add(newDoctor);
+                    clinic.Logger.LogInfo($"Додано лікаря: {firstName} {lastName}");
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
                     Console.WriteLine($"[Помилка діапазону]: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (ArgumentException ex)
                 {
                     Console.WriteLine($"[Помилка валідації]: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("[Помилка формату]: Введено некоректне число або дату!");
+                    clinic.Logger.LogWarning("Помилка введення: некоректне число або дата");
                 }
                 break;
 
@@ -1076,18 +1194,22 @@ static void ShowAppointmentMenu(Clinic clinic)
                     int duration = string.IsNullOrWhiteSpace(durInput) ? 30 : int.Parse(durInput);
 
                     clinic.Appointments.Book(pId, dId, dt, duration);
+                    clinic.Logger.LogInfo($"Запис створено: пацієнт #{pId} → лікар #{dId}, {dt:yyyy-MM-dd HH:mm}");
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
                     Console.WriteLine($"[Помилка діапазону]: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (ArgumentException ex)
                 {
                     Console.WriteLine($"[Помилка валідації]: {ex.Message}");
+                    clinic.Logger.LogWarning($"Помилка введення: {ex.Message}");
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("[Помилка формату]: Введено некоректне число або дату!");
+                    clinic.Logger.LogWarning("Помилка введення: некоректне число або дата");
                 }
                 break;
 
@@ -1099,6 +1221,10 @@ static void ShowAppointmentMenu(Clinic clinic)
                 string reason = Console.ReadLine()!;
 
                 clinic.Appointments.Cancel(cancelId, reason);
+                if (clinic.Appointments.Cancel(cancelId, reason))
+                    clinic.Logger.LogInfo($"Запис #{cancelId} скасовано: {reason}");
+                else
+                    clinic.Logger.LogWarning($"Не вдалося скасувати запис #{cancelId}");
                 break;
 
             case "3":
@@ -1106,6 +1232,10 @@ static void ShowAppointmentMenu(Clinic clinic)
                 int completeId = int.Parse(Console.ReadLine()!);
 
                 clinic.Appointments.Complete(completeId);
+                if (clinic.Appointments.Complete(completeId))
+                    clinic.Logger.LogInfo($"Запис #{completeId} завершено");
+                else
+                    clinic.Logger.LogWarning($"Не вдалося завершити запис #{completeId}");
                 break;
 
             case "4":
@@ -1148,6 +1278,7 @@ static void ShowAppointmentMenu(Clinic clinic)
                     var patientAppointments = clinic.Appointments.GetByPatient(patientIdForCancel);
                     int canceledCount = AppointmentManager.CancelAll(patientAppointments, Reason);
                     Console.WriteLine($"Скасовано записів: {canceledCount}");
+                    clinic.Logger.LogInfo($"Скасовано записів пацієнта #{patientIdForCancel}: {canceledCount}");
                 }
                 break;
 
@@ -1195,4 +1326,3 @@ static void ShowAppointmentMenu(Clinic clinic)
         }
     }
 }
-
