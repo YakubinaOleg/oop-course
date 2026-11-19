@@ -23,6 +23,9 @@ namespace ClinicApp;
 
     public ClinicExporter Exporter { get; }
 
+    public CsvImporter Importer { get; }
+
+    public SessionManager Session { get; }
 
     public Clinic(string name)
     {
@@ -37,6 +40,8 @@ namespace ClinicApp;
         Analytics = new AnalyticsManager(Appointments, Doctors, Patients);
         Logger = new ClinicLogger();
         Exporter = new ClinicExporter(this);
+        Importer = new CsvImporter();
+        Session = new SessionManager();
     }
 
     public void DisplaySchedule(DateTime date)

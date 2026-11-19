@@ -45,6 +45,18 @@ clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Ге�
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
 
+if (clinic.Session.Exists())
+{
+    Console.Write("Знайдено збережену сесію. Завантажити? (y/n): ");
+    string loadAnswer = (Console.ReadLine() ?? "").Trim().ToLower();
+    if (loadAnswer == "y")
+    {
+        int loaded = clinic.Session.Load(clinic);
+        Console.WriteLine($"Завантажено {loaded} пацієнтів.");
+        clinic.Logger.LogInfo($"Завантажено сесію: {loaded} пацієнтів");
+    }
+}
+
 ShowMainMenu(clinic);
 static void ShowMainMenu(Clinic clinic)
 {
@@ -113,6 +125,14 @@ static void ShowMainMenu(Clinic clinic)
                 break;
 
             case "0":
+                Console.Write("Зберегти сесію? (y/n): ");
+                string saveAnswer = (Console.ReadLine() ?? "").Trim().ToLower();
+                if (saveAnswer == "y")
+                {
+                    clinic.Session.Save(clinic);
+                    Console.WriteLine("Сесію збережено.");
+                    clinic.Logger.LogInfo("Сесію збережено");
+                }
                 Console.WriteLine("Завершення роботи програми...");
                 return;
 
