@@ -15,6 +15,8 @@ namespace ClinicApp;
 
     public WaitingQueue<Patient> WaitingRoom { get; }
 
+    public TreatmentPlanManager TreatmentPlans { get; }
+
 
     public Clinic(string name)
     {
@@ -25,6 +27,7 @@ namespace ClinicApp;
         MedicalRecords = new MedicalRecordManager();
         Billing = new BillingManager(Appointments);
         WaitingRoom = new WaitingQueue<Patient>();
+        TreatmentPlans = new TreatmentPlanManager();
 
     }
 
