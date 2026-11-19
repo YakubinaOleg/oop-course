@@ -1,20 +1,18 @@
 ﻿using ClinicApp;
+using ClinicApp.Attributes;
 using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
 using ClinicApp.Models;
+using ClinicApp.Utils;
 using System.Globalization;
-
+using System.Reflection;
 
 Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-
 Clinic clinic = new Clinic("Медична Клініка");
-
-
-
 
 clinic.Patients.Add(new Patient("Олександр", "Коваленко", new DateTime(1990, 5, 14), BloodType.APositive, "0971112233", "kovalenko@gmail.com"));
 clinic.Patients.Add(new Patient("Марія", "Шевченко", new DateTime(2003, 11, 28), BloodType.ONegative, "0504445566", "m.shevchenko@gmail.com"));
@@ -46,15 +44,6 @@ clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-3), "Ге�
 clinic.MedicalRecords.Add(new LabResult(3, 2, DateTime.Today.AddDays(-2), "Загальний білок", 70.0, "г/л", "64-83", isNormal: true));
 
 
-Repository<Patient> repo = new Repository<Patient>();
-Patient p1 = new Patient("Тест", "Один", new DateTime(2000, 1, 1), BloodType.APositive, "0501111111", "t1@gmail.com");
-Patient p2 = new Patient("Тест", "Два", new DateTime(2001, 2, 2), BloodType.BPositive, "0502222222", "t2@gmail.com");
-repo.Add(p1);
-repo.Add(p2);
-Console.WriteLine(repo.GetById(p2.Id)?.FullName);  // ім'я p2
-Console.WriteLine(repo.Remove(p1.Id));             // True
-Console.WriteLine(repo.Count);
-
 ShowMainMenu(clinic);
 static void ShowMainMenu(Clinic clinic)
 {
@@ -71,6 +60,7 @@ static void ShowMainMenu(Clinic clinic)
         Console.WriteLine("│ 5. Рахунки        — оплата, борги            │");
         Console.WriteLine("│ 6. Черга          — очікування, прийом       │");
         Console.WriteLine("│ 7. Звіт           — загальна статистика      │");
+        Console.WriteLine("│ 9. Плани лікування — рефлексія, атрибути     │");
         Console.WriteLine("│ 0. Вийти                                     │");
         Console.WriteLine("└──────────────────────────────────────────────┘");
         Console.Write("Оберіть розділ: ");
@@ -107,6 +97,10 @@ static void ShowMainMenu(Clinic clinic)
                 clinic.GenerateReport();
                 break;
 
+            case "9":
+                ShowTreatmentPlansMenu(clinic);
+                break;
+
             case "0":
                 Console.WriteLine("Завершення роботи програми...");
                 return;
@@ -115,6 +109,98 @@ static void ShowMainMenu(Clinic clinic)
                 Console.WriteLine("Невірний вибір! Спробуйте ще раз.");
                 break;
         }
+    }
+}
+
+static void ShowTreatmentPlansMenu(Clinic clinic)
+{
+    while (true)
+    {
+        Console.WriteLine("\n── Плани лікування ──────────");
+        Console.WriteLine("  1. Показати всі плани");
+        Console.WriteLine("  2. Додати план лікування");
+        Console.WriteLine("  3. Плани пацієнта");
+        Console.WriteLine("  4. Активувати план");
+        Console.WriteLine("  5. Завершити план");
+        Console.WriteLine("  6. Скасувати план");
+        Console.WriteLine("  7. Інформація про тип TreatmentPlan");
+        Console.WriteLine("  0. Назад");
+        Console.Write("Оберіть: ");
+
+        string choice = Console.ReadLine() ?? "";
+
+        switch (choice)
+        {
+            case "1":
+                PrintPlans(clinic.TreatmentPlans.GetAll());
+                break;
+
+            case "2":
+                TreatmentPlan newPlan = FormBuilder.Build<TreatmentPlan>();
+                if (clinic.TreatmentPlans.Add(newPlan))
+                    Console.WriteLine("План додано.");
+                break;
+
+            case "3":
+                Console.Write("ID пацієнта: ");
+                if (int.TryParse(Console.ReadLine(), out int patientId))
+                    PrintPlans(clinic.TreatmentPlans.GetByPatient(patientId));
+                else
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                break;
+
+            case "4":
+            case "5":
+            case "6":
+                Console.Write("ID плану: ");
+                if (!int.TryParse(Console.ReadLine(), out int planId))
+                {
+                    Console.WriteLine("Помилка: введено некоректне число!");
+                    break;
+                }
+
+                TreatmentPlan? plan = clinic.TreatmentPlans.GetById(planId);
+                if (plan == null)
+                {
+                    Console.WriteLine("План не знайдено.");
+                    break;
+                }
+
+                bool ok;
+                if (choice == "4") ok = plan.Activate();
+                else if (choice == "5") ok = plan.Complete();
+                else ok = plan.Cancel();
+
+                Console.WriteLine(ok
+                    ? $"Статус плану [{plan.Id}]: {plan.Status}"
+                    : "Перехід неможливий для поточного статусу.");
+                break;
+
+            case "7":
+                ModelValidator.PrintInfo(typeof(TreatmentPlan));
+                break;
+
+            case "0":
+                return;
+
+            default:
+                Console.WriteLine("Невірний вибір! Спробуйте ще раз.");
+                break;
+        }
+    }
+}
+
+static void PrintPlans(TreatmentPlan[] plans)
+{
+    if (plans.Length == 0)
+    {
+        Console.WriteLine("Планів немає.");
+        return;
+    }
+
+    for (int i = 0; i < plans.Length; i++)
+    {
+        Console.WriteLine($"[{plans[i].Id}] Пацієнт #{plans[i].PatientId} | {plans[i].Diagnosis} | {plans[i].DurationDays} дн. | {plans[i].Status}");
     }
 }
 static void WaitingRoomMenu(Clinic clinic)
