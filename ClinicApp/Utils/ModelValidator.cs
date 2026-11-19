@@ -50,18 +50,23 @@ namespace ClinicApp.Utils
 
         public static void PrintInfo(Type type)
         {
-            Console.WriteLine($"Тип: {type.Name}");
+            Console.WriteLine(type.Name);
 
             PropertyInfo[] props = type.GetProperties();
             for (int i = 0; i < props.Length; i++)
             {
-                Console.WriteLine($"  {props[i].Name} ({props[i].PropertyType.Name})");
+                string line = "  " + props[i].Name.PadRight(13);
 
                 object[] attrs = props[i].GetCustomAttributes(true);
                 for (int j = 0; j < attrs.Length; j++)
                 {
-                    Console.WriteLine($"    [{attrs[j].GetType().Name}]");
+                    string name = attrs[j].GetType().Name;
+                    if (name.EndsWith("Attribute"))
+                        name = name.Substring(0, name.Length - "Attribute".Length);
+                    line += $"[{name}] ";
                 }
+
+                Console.WriteLine(line.TrimEnd());
             }
         }
     }
